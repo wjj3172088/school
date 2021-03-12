@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScSchoolworkMapper">
+    
+    <resultMap type="ScSchoolwork" id="ScSchoolworkResult">
+        <result property="schoolWorkId"    column="school_work_id"    />
+        <result property="title"    column="title"    />
+        <result property="textcontent"    column="textcontent"    />
+        <result property="picurls"    column="picurls"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="publisherId"    column="publisher_id"    />
+        <result property="ifConfirm"    column="if_confirm"    />
+        <result property="needCount"    column="need_count"    />
+        <result property="confirmCount"    column="confirm_count"    />
+        <result property="unconfirmedCount"    column="unconfirmed_count"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="publishDate"    column="publish_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="stateMark"    column="state_mark"    />
+        <result property="publisherName"    column="publisher_name"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="className"    column="class_name"    />
+    </resultMap>
+
+
+    <select id="selectListByPage" parameterType="ScSchoolwork" resultMap="ScSchoolworkResult">
+        select t.school_work_id,t.title,t.textcontent,t.picurls,t.org_id,t.class_id,t.publisher_id,t.if_confirm,t.need_count,t.confirm_count
+        , IFNULL(t.unconfirmed_count,0) unconfirmed_count
+        ,t.create_date,t.publish_date,t.modify_date,t.state_mark,t.publisher_name
+        ,concat(t3.item_name,t2.class_num) as class_name
+        ,t6.org_name
+        FROM t_sc_schoolwork t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        LEFT JOIN t_sys_dict_item t3 ON t3.dict_code = 'grade' AND t3.item_val = t2.grade
+        left join t_sys_org t6 on t.org_id = t6.org_id
+        where 1=1
+        <if test="scSchoolwork.orgId != null and scSchoolwork.orgId != ''">
+            and t.org_id in (#{scSchoolwork.orgId})
+        </if>
+        <if test="scSchoolwork.classId != null and scSchoolwork.classId != ''">
+            and t.class_id in (#{scSchoolwork.classId})
+        </if>
+        <if test="scSchoolwork.title != null and scSchoolwork.title != ''">
+            and t.title like CONCAT('%',#{scSchoolwork.title},'%' )
+        </if>
+        <if test="scSchoolwork.stateMark != null">
+            and t.state_mark = #{scSchoolwork.stateMark}
+        </if>
+        <if test="scSchoolwork.publisherName != null and scSchoolwork.publisherName != ''">
+            and t.publisher_name = #{scSchoolwork.publisherName}
+        </if>
+        <if test="scSchoolwork.beginTime != null and scSchoolwork.beginTime != ''">
+            <![CDATA[
+			    and t.create_date >= #{scSchoolwork.beginTime}
+			]]>
+        </if>
+        <if test="scSchoolwork.endTime != null and scSchoolwork.endTime != ''">
+            <![CDATA[
+			    and t.create_date <= #{scSchoolwork.endTime}
+			]]>
+        </if>
+        order by t.create_date desc
+    </select>
+</mapper>

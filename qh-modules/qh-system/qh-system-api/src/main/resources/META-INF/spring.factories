@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.qh.system.api.factory.RemoteDictDataFallbackFactory,\
+  com.qh.system.api.factory.RemoteLogFallbackFactory,\
+  com.qh.system.api.factory.RemoteUserFallbackFactory,\
+  com.qh.system.api.factory.RemoteSysConfigFallbackFactory,\
+  com.qh.common.core.utils.oss.AliOSS

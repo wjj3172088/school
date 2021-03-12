@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScNewsSingleMapper">
+
+    <resultMap type="ScNewsSingle" id="ScNewsSingleResult">
+        <result property="tag" column="tag"/>
+        <result property="newsType" column="news_type"/>
+        <result property="newsTitle" column="news_title"/>
+        <result property="content" column="content"/>
+        <result property="address" column="address"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="classId" column="class_id"/>
+        <result property="image" column="image"/>
+        <result property="bigImage" column="big_image"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="orgId" column="org_id"/>
+        <result property="publisherId" column="publisher_id"/>
+        <result property="publisherName" column="publisher_name"/>
+        <result property="visibleLevel" column="visible_level"/>
+        <result property="accId" column="acc_id"/>
+        <result property="targetId" column="target_id"/>
+    </resultMap>
+
+    <insert id="batchInsertNewsSingle" parameterType="ScNewsSingle">
+        insert into
+        t_sc_news_single(tag,news_type,news_title,content,biz_id,image,create_date,
+        publisher_id,publisher_name,org_id,acc_id,target_id,visible_level)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.tag}, #{item.newsType}, #{item.newsTitle}, #{item.content},#{item.bizId},#{item.image},
+            #{item.createDate},#{item.publisherId},#{item.publisherName},#{item.orgId},#{item.accId},#{item.targetId},#{item.visibleLevel})
+        </foreach>
+    </insert>
+</mapper>

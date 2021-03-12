@@ -1,0 +1,94 @@
+package ${packageName}.service.impl;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.stereotype.Service;
+import com.qh.common.core.utils.StringUtils;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import ${packageName}.mapper.${ClassName}Mapper;
+import ${packageName}.domain.${ClassName};
+import ${packageName}.service.I${ClassName}Service;
+
+/**
+ * ${functionName}Service业务层处理
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Service
+public class ${ClassName}ServiceImpl extends ServiceImpl<${ClassName}Mapper, ${ClassName}> implements I${ClassName}Service {
+    /**
+     * 查询${functionName}集合
+     *
+     * @param page         分页信息
+     * @param ${className} 操作${functionName}对象
+     * @return 操作${functionName}集合
+     */
+    @Override
+    public IPage<${ClassName}> select${ClassName}ListByPage(IPage<${ClassName}> page, ${ClassName} ${className}) {
+        return this.page(page, getQuery(${className}));
+    }
+
+    /**
+     * 查询${functionName}参数拼接
+     */
+    private QueryWrapper<${ClassName}> getQuery(${ClassName} ${className}) {
+        QueryWrapper<${ClassName}> queryWrapper = new QueryWrapper<>();
+
+#foreach($column in $columns)
+#set($queryType=$column.queryType)
+#set($javaField=$column.javaField)
+#set($javaType=$column.javaType)
+#set($columnName=$column.columnName)
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+#if($column.query)
+#if($column.queryType == "EQ")
+#if($javaType == 'String')
+        queryWrapper.eq(StringUtils.isNotBlank(${className}.get$AttrName()), "$columnName", ${className}.get$AttrName());
+#else
+        queryWrapper.eq(${className}.get$AttrName() != null, "$columnName", ${className}.get$AttrName());
+#end
+#elseif($queryType == "NE")
+#if($javaType == 'String')
+        queryWrapper.ne(StringUtils.isNotBlank(${className}.get$AttrName()), "$columnName", ${className}.get$AttrName());
+#else
+        queryWrapper.ne(${className}.get$AttrName() != null, "$columnName", ${className}.get$AttrName());
+#end
+#elseif($queryType == "GT")
+#if($javaType == 'String')
+        queryWrapper.gt(StringUtils.isNotBlank(${className}.get$AttrName()), "$columnName", ${className}.get$AttrName());
+#else
+        queryWrapper.gt(${className}.get$AttrName() != null, "$columnName", ${className}.get$AttrName());
+#end
+#elseif($queryType == "GTE")
+#if($javaType == 'String')
+        queryWrapper.ge(StringUtils.isNotBlank(${className}.get$AttrName()), "$columnName", ${className}.get$AttrName());
+#else
+        queryWrapper.ge(${className}.get$AttrName() != null, "$columnName", ${className}.get$AttrName());
+#end
+#elseif($queryType == "LT")
+#if($javaType == 'String')
+        queryWrapper.lt(StringUtils.isNotBlank(${className}.get$AttrName()), "$columnName", ${className}.get$AttrName());
+#else
+        queryWrapper.lt(${className}.get$AttrName() != null, "$columnName", ${className}.get$AttrName());
+#end
+#elseif($queryType == "LTE")
+#if($javaType == 'String')
+        queryWrapper.le(StringUtils.isNotBlank(${className}.get$AttrName()), "$columnName", ${className}.get$AttrName());
+#else
+        queryWrapper.le(${className}.get$AttrName() != null, "$columnName", ${className}.get$AttrName());
+#end
+#elseif($queryType == "LIKE")
+#if($javaType == 'String')
+        queryWrapper.like(StringUtils.isNotBlank(${className}.get$AttrName()), "$columnName", ${className}.get$AttrName());
+#else
+        queryWrapper.like(${className}.get$AttrName() != null, "$columnName", ${className}.get$AttrName());
+#end
+#elseif($queryType == "BETWEEN")
+#end
+#end
+#end
+        queryWrapper.orderByDesc("create_date");
+        return queryWrapper;
+    }
+}

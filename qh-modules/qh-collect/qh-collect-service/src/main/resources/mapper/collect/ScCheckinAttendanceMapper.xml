@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.collect.mapper.ScCheckinAttendanceMapper">
+    
+    <resultMap type="ScCheckinAttendance" id="ScCheckinAttendanceResult">
+        <result property="attendanceId"    column="attendance_id"    />
+        <result property="recorder"    column="recorder"    />
+        <result property="recorderType"    column="recorder_type"    />
+        <result property="attendanceDate"    column="attendance_date"    />
+        <result property="intoTime"    column="into_time"    />
+        <result property="outtoTime"    column="outto_time"    />
+        <result property="stateMark"    column="state_mark"    />
+        <result property="tohomeTime"    column="tohome_time"    />
+        <result property="classId"    column="class_id"    />
+        <result property="orgId"    column="org_id"    />
+    </resultMap>
+
+    <!-- 获取一条学校考勤记录信息 -->
+    <select id="findOneSchoolCheckinAttendanceInMap"  resultMap="ScCheckinAttendanceResult">
+        select * from t_sc_checkin_attendance s
+        where 1=1
+        <if test="recorder != null and recorder != ''">
+            and s.recorder=#{recorder}
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and s.org_id=#{orgId}
+        </if>
+        <if test="attendanceDate != null">
+            and s.attendance_date=#{attendanceDate}
+        </if>
+        <if test="recorderType != null and recorderType != ''">
+            and s.recorder_type=#{recorderType}
+        </if>
+        LIMIT 1
+    </select>
+</mapper>

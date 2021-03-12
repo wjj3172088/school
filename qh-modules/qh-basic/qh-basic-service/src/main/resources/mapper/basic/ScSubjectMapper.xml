@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScSubjectMapper">
+    <resultMap type="ScSubject" id="ScSubjectResult">
+        <result property="subjectId" column="subject_id"/>
+        <result property="subjectName" column="subject_name"/>
+        <result property="orgId" column="org_id"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <update id="modifyBySubjectIdAndOrgId" parameterType="map">
+        update t_sc_subject
+        <set>
+            <if test="subjectName != null and subjectName != ''">subject_name = #{subjectName},</if>
+            <if test="modifyDate != null and modifyDate != ''">modify_date = #{modifyDate},</if>
+        </set>
+        where subject_id = #{subjectId} and org_id = #{orgId}
+    </update>
+</mapper>

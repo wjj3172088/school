@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScMoveAccMapper">
+
+    <resultMap type="ScMoveAcc" id="ScMoveAccResult">
+        <result property="accId" column="acc_id"/>
+        <result property="accPwd" column="acc_pwd"/>
+        <result property="accNum" column="acc_num"/>
+        <result property="nickname" column="nickname"/>
+        <result property="trueName" column="true_name"/>
+        <result property="salt" column="salt"/>
+        <result property="avatar" column="avatar"/>
+        <result property="sex" column="sex"/>
+        <result property="accType" column="acc_type"/>
+        <result property="orgId" column="org_id"/>
+        <result property="alias" column="alias"/>
+        <result property="voice" column="voice"/>
+        <result property="vibrate" column="vibrate"/>
+        <result property="gtCid" column="gt_cid"/>
+        <result property="remark" column="remark"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="lastTime" column="last_time"/>
+        <result property="activityDate" column="activity_date"/>
+    </resultMap>
+
+    <!-- 根据账号查询 -->
+    <select id="selectByAccNum" parameterType="String" resultMap="ScMoveAccResult">
+		select * from t_sc_move_acc
+		where acc_num = #{accNum}
+		and state_mark != 'D' limit 1
+	</select>
+
+    <!-- 根据账号id查询 -->
+    <select id="selectByAccId" parameterType="String" resultMap="ScMoveAccResult">
+		select * from t_sc_move_acc
+		where acc_id = #{accId} and state_mark != 'D' limit 1
+	</select>
+
+
+    <!-- 根据教师姓名查询 -->
+    <select id="selectByTrueName"  resultMap="ScMoveAccResult">
+		select * from t_sc_move_acc
+		where true_name = #{trueName} and org_id=#{orgId} and acc_type in('T','S','R') and state_mark != 'D' limit 1
+	</select>
+
+    <!-- 删除操作 -->
+    <update id="batchDelByAccId">
+        update t_sc_move_acc set state_mark = 'D' where acc_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 修改帐户 -->
+    <update id="modifyAccId" parameterType="com.qh.basic.domain.ScMoveAcc">
+        update t_sc_move_acc
+        <set>
+            <if test="accNum != null and accNum != ''">acc_num = #{accNum},</if>
+            <if test="trueName != null and trueName != ''">true_name = #{trueName},</if>
+            <if test="stateMark != null and stateMark != ''">state_mark = #{stateMark},</if>
+            modify_date = sysdate()
+        </set>
+        where acc_id = #{accId}
+    </update>
+</mapper>

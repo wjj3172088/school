@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScNoticeMapper">
+
+    <resultMap type="ScNotice" id="ScNoticeResult">
+        <result property="noticeId" column="notice_id"/>
+        <result property="noticeTitle" column="notice_title"/>
+        <result property="noticeContent" column="notice_content"/>
+        <result property="noticePicurls" column="notice_picurls"/>
+        <result property="classId" column="class_id"/>
+        <result property="orgId" column="org_id"/>
+        <result property="publisherId" column="publisher_id"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="noticeTarget" column="notice_target"/>
+        <result property="ifConfirm" column="if_confirm"/>
+        <result property="needCount" column="need_count"/>
+        <result property="confirmCount" column="confirm_count"/>
+        <result property="unconfirmedCount" column="unconfirmed_count"/>
+        <result property="publisherName" column="publisher_name"/>
+    </resultMap>
+
+    <resultMap type="PushMoveAcc" id="PushMoveAccResult">
+        <result property="alias" column="alias"/>
+        <result property="accNum" column="acc_num"/>
+        <result property="accId" column="acc_id"/>
+        <result property="stuId" column="stu_id"/>
+        <result property="relation" column="relation"/>
+        <result property="classId" column="class_id"/>
+        <result property="gtCid" column="gt_cid"/>
+        <result property="stuName" column="stu_name"/>
+        <result property="relationType" column="relation_type"/>
+    </resultMap>
+
+    <resultMap type="NoticeViewVo" id="NoticeViewResult">
+        <result property="avatar" column="avatar"/>
+        <result property="look" column="look"/>
+        <result property="nickName" column="nickname"/>
+        <result property="accId" column="acc_id"/>
+        <result property="classId" column="class_id"/>
+        <result property="concatName" column="concat_name"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="accNum" column="acc_num"/>
+    </resultMap>
+
+    <update id="modify" parameterType="com.qh.basic.domain.ScNotice">
+        update t_sc_notice
+        <set>
+            <if test="noticeTitle != null and noticeTitle != ''">notice_title = #{noticeTitle},</if>
+            <if test="noticeContent != null and noticeContent != ''">notice_content = #{noticeContent},</if>
+            <if test="noticePicurls != null and noticePicurls != ''">notice_picurls = #{noticePicurls},</if>
+            <if test="noticeTarget != null">notice_target = #{noticeTarget},</if>
+            <if test="stateMark != null">state_mark = #{stateMark},</if>
+            <if test="ifConfirm != null">if_confirm = #{ifConfirm},</if>
+            <if test="needCount != null">need_count = #{needCount},</if>
+            <if test="confirmCount != null">confirm_count = #{confirmCount},</if>
+            <if test="unconfirmedCount != null">unconfirmed_count = #{unconfirmedCount},</if>
+            <if test="modifyDate != null">modify_date = #{modifyDate},</if>
+        </set>
+        where notice_id = #{noticeId}
+    </update>
+
+    <!-- 删除班级班主任 -->
+    <delete id="deleteByNoticeId">
+		delete from t_sc_notice  where notice_id = #{noticeId}
+	</delete>
+
+    <!-- 推送学生姓名查询 -->
+    <select id="findPushMoveAcc" resultMap="PushMoveAccResult">
+        select mv.alias,mv.acc_num,mv.acc_id,t2.item_name as
+        relation,ps.stu_id,st.class_id,mv.gt_cid,st.stu_name,ps.relation relation_type
+        from t_sc_parent_student ps
+        join t_sc_move_acc mv on ps.acc_id=mv.acc_id
+        join t_sc_student st on st.stu_id = ps.stu_id
+        left join t_sys_dict_item t2 on t2.dict_code = 'guarRelation' and t2.item_val = ps.relation
+        where st.state_mark='Y' and mv.acc_type='P' and mv.state_mark='Y'
+        <if test="classId != null and classId != ''">
+            and st.class_id in (${classId})
+        </if>
+        <if test="psId != null and psId != ''">
+            and ps.ps_id in (${psId})
+        </if>
+    </select>
+
+    <!-- 分页查询已读未读人员列表 -->
+    <select id="selectViewListByPage" resultMap="NoticeViewResult">
+        SELECT m.avatar,t.look,t.modify_date,m.nickname,m.acc_id, t.class_id, m.acc_num,
+        if(m.acc_type = 'P',concat(t1.stu_name,t2.item_name),if(m.acc_type =
+        'S',concat(m.true_name,'职工'),concat(teacher.teac_name,'老师'))) as concat_name
+        from (select acc_id,look,modify_date,create_date,class_id,target_id from t_sc_news_new
+        <where>
+            <if test="bizId !=null">
+                and biz_id = #{bizId}
+            </if>
+            <if test="look !=null and look != ''">
+                and look = #{look}
+            </if>
+        </where>
+        ) t
+        join t_sc_move_acc m on m.acc_id=t.acc_id
+        left join t_sc_parent_student t_parent on t_parent.acc_id = m.acc_id and t_parent.stu_id = t.target_id
+        left join t_sc_student t1 on t_parent.stu_id = t1.stu_id
+        left join t_sys_dict_item t2 on t2.dict_code = 'guarRelation' and t2.item_val = t_parent.relation
+        left join t_sc_teacher teacher on teacher.mobile = m.acc_num and m.acc_type != 'P'
+        left join t_sc_staff_info staff on staff.acc_id = m.acc_id and m.acc_type != 'P'
+        order by t.create_date,m.acc_id desc
+    </select>
+</mapper>

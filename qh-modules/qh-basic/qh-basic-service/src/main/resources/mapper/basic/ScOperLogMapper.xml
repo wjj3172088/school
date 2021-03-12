@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScOperLogMapper">
+
+    <resultMap type="ScOperLog" id="ScOperLogResult">
+        <result property="id" column="id"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="operId" column="oper_id"/>
+        <result property="operName" column="oper_name"/>
+        <result property="operContent" column="oper_content"/>
+        <result property="operType" column="oper_type"/>
+        <result property="operUserType" column="oper_user_type"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+</mapper>

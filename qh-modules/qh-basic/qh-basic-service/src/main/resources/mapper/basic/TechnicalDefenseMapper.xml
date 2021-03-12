@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.TechnicalDefenseMapper">
+
+    <resultMap type="TechnicalDefense" id="TechnicalDefenseResult">
+        <result property="defenseId" column="defense_id"/>
+        <result property="defenseType" column="defense_type"/>
+        <result property="defenseTypeName" column="defense_type_name"/>
+        <result property="name" column="name"/>
+        <result property="model" column="model"/>
+        <result property="count" column="count"/>
+        <result property="configTime" column="config_time"/>
+        <result property="expireTime" column="expire_time"/>
+        <result property="images" column="images"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="remark" column="remark"/>
+        <result property="price" column="price"/>
+        <result property="beAbnormal" column="be_abnormal"/>
+        <result property="beConnectPublicSecurity" column="be_connect_public_security"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateDate" column="update_date"/>
+    </resultMap>
+
+    <!-- 批量新增 -->
+    <insert id="batchInsert" parameterType="PhysicalDefense">
+        insert into t_sc_technical_defense(defense_id,defense_type,defense_type_name,name,model,count,config_time,expire_time,images,org_id,org_name,remark,price,be_abnormal,be_connect_public_security,create_date,update_date)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.defenseId}, #{item.defenseType}, #{item.defenseTypeName}, #{item.name},#{item.model},#{item.count},#{item.configTime},#{item.expireTime},#{item.images},#{item.orgId},
+            #{item.orgName},#{item.remark},#{item.price},#{item.beAbnormal},#{item.beConnectPublicSecurity},#{item.createDate},#{item.updateDate})
+        </foreach>
+    </insert>
+
+    <!-- 批量修改 -->
+    <update id="batchUpdate" parameterType="com.qh.basic.domain.PhysicalDefense">
+        <foreach collection="list" item="item" separator=";">
+            update t_sc_technical_defense
+            <set>
+                defense_type = #{item.defenseType},
+                defense_type_name = #{item.defenseTypeName},
+                name = #{item.name},
+                model = #{item.model},
+                count = #{item.count},
+                config_time = #{item.configTime},
+                expire_time = #{item.expireTime},
+                images = #{item.images},
+                remark = #{item.remark},
+                price = #{item.price},
+                be_abnormal = #{item.beAbnormal},
+                be_connect_public_security = #{item.beConnectPublicSecurity},
+                update_date = #{item.updateDate}
+            </set>
+            where defense_type = #{item.defenseType}
+        </foreach>
+    </update>
+
+    <!-- 批量修改 -->
+    <update id="updateByDefenseId" parameterType="com.qh.basic.domain.PhysicalDefense">
+        update t_sc_technical_defense
+        <set>
+            defense_type = #{defenseType},
+            defense_type_name = #{defenseTypeName},
+            name = #{name},
+            model = #{model},
+            count = #{count},
+            config_time = #{configTime},
+            expire_time = #{expireTime},
+            images = #{images},
+            remark = #{remark},
+            price = #{price},
+            be_abnormal = #{beAbnormal},
+            be_connect_public_security = #{beConnectPublicSecurity},
+            update_date = #{updateDate}
+        </set>
+        where defense_id = #{defenseId}
+    </update>
+</mapper>

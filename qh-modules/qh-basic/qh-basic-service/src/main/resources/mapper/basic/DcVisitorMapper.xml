@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.DcVisitorMapper">
+
+    <resultMap type="DcVisitor" id="DcVisitorResult">
+        <result property="visitorId" column="visitor_id"/>
+        <result property="sbhm" column="sbhm"/>
+        <result property="ybhm" column="ybhm"/>
+        <result property="xm" column="xm"/>
+        <result property="xbdm" column="xbdm"/>
+        <result property="gmsfhm" column="gmsfhm"/>
+        <result property="csrq" column="csrq"/>
+        <result property="mzdm" column="mzdm"/>
+        <result property="dzmc" column="dzmc"/>
+        <result property="dh" column="dh"/>
+        <result property="picurl" column="picurl"/>
+        <result property="lfsj" column="lfsj"/>
+        <result property="lksj" column="lksj"/>
+        <result property="bfbm" column="bfbm"/>
+        <result property="bfry" column="bfry"/>
+        <result property="orgId" column="org_id"/>
+        <result property="cph" column="cph"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <select id="selectListByPage" parameterType="map" resultType="com.qh.basic.domain.vo.DcVisitorVo">
+        SELECT
+        t1.xm,
+        t1.picurl,
+        t1.xbdm,
+        t1.gmsfhm,
+        t1.create_date
+        FROM t_dc_visitor t1
+        LEFT JOIN t_dc_vdevice AS t2 ON t1.sbhm = t2.sbhm
+        <where>
+            <if test="map.orgId != null and map.orgId != ''">
+                and t2.org_id = #{map.orgId}
+            </if>
+            <if test="map.xm != null and map.xm != ''">
+                and t1.xm like CONCAT('%',#{map.xm},'%' )
+            </if>
+            <if test="map.gmsfhm != null and map.gmsfhm != ''">
+                and t1.gmsfhm like CONCAT('%',#{map.gmsfhm},'%' )
+            </if>
+            <if test="map.beginTime != null and map.beginTime != ''">
+                <![CDATA[
+			    and t1.create_date >= #{map.beginTime}
+			]]>
+            </if>
+            <if test="map.endTime != null and map.endTime != ''">
+                <![CDATA[
+			    and t1.create_date <= #{map.endTime}
+			]]>
+            </if>
+        </where>
+        order by t1.create_date desc
+    </select>
+</mapper>

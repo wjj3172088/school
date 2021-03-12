@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScCurriculumMapper">
+    
+    <resultMap type="ScCurriculum" id="ScCurriculumResult">
+        <result property="curriculumId"    column="curriculum_id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="className"    column="class_name"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="cumiculumPic"    column="cumiculum_pic"    />
+        <result property="curriculumMark"    column="curriculum_mark"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="stateMark"    column="state_mark"    />
+    </resultMap>
+
+    <select id="selectListByPage" parameterType="ScCurriculum" resultMap="ScCurriculumResult">
+        select t.curriculum_id,t.class_id,t.org_id,t.cumiculum_pic,t.curriculum_mark,t.create_date,t.modify_date,t.state_mark
+        ,concat(t3.item_name,t2.class_num) as class_name
+        ,t6.org_name
+        FROM t_sc_curriculum t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        LEFT JOIN t_sys_dict_item t3 ON t3.dict_code = 'grade' AND t3.item_val = t2.grade
+        left join t_sys_org t6 on t.org_id = t6.org_id
+        where 1=1
+        <if test="scCurriculum.orgId != null and scCurriculum.orgId != ''">
+            and t.org_id in (#{scCurriculum.orgId})
+        </if>
+        <if test="scCurriculum.classId != null and scCurriculum.classId != ''">
+            and t.class_id in (#{scCurriculum.classId})
+        </if>
+        <if test="scCurriculum.curriculumMark != null and scCurriculum.curriculumMark != ''">
+            and t.curriculum_mark = #{scCurriculum.curriculumMark}
+        </if>
+        <if test="scCurriculum.stateMark != null and scCurriculum.stateMark != ''">
+            and t.state_mark = #{scCurriculum.stateMark}
+        </if>
+        order by t.create_date desc
+    </select>
+
+</mapper>

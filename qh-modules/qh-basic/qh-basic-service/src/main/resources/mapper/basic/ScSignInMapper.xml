@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScSignInMapper">
+    
+    <resultMap type="ScSignIn" id="ScSignInResult">
+        <result property="id"    column="sign_id"    />
+        <result property="stuId"    column="stu_id"    />
+        <result property="stuName"    column="stu_name"    />
+        <result property="publisherId"    column="publisher_id"    />
+        <result property="publisherName"    column="publisher_name"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="signType"    column="sign_type"    />
+        <result property="stateMark"    column="state_mark"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+
+</mapper>

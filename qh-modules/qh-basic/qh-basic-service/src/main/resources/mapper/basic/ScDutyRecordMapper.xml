@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScDutyRecordMapper">
+    
+    <resultMap type="ScDutyRecord" id="ScDutyRecordResult">
+        <result property="recordId"    column="record_id"    />
+        <result property="publisherId"    column="publisher_id"    />
+        <result property="tel"    column="tel"    />
+        <result property="time"    column="time"    />
+        <result property="leader"    column="leader"    />
+        <result property="dutyStaff"    column="duty_staff"    />
+        <result property="publisherName"    column="publisher_name"    />
+        <result property="recordDate"    column="record_date"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="picurl"    column="picurl"    />
+        <result property="recordType"    column="record_type"    />
+        <result property="stateMark"    column="state_mark"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="remark"    column="remark"    />
+        <result property="feedback"    column="feedback"    />
+    </resultMap>
+
+
+</mapper>

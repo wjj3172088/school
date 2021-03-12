@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.system.mapper.SysDictDataMapper">
+	
+	<resultMap type="SysDictData" id="SysDictDataResult">
+		<id     property="itemNumId"   column="item_num_id"   />
+		<result property="itemId"   column="item_id"   />
+		<result property="itemName"  column="item_name"  />
+		<result property="itemVal"  column="item_val"  />
+		<result property="dictCode"   column="dict_code"   />
+		<result property="dictId"   column="dict_id"   />
+		<result property="stateMark"  column="state_mark"  />
+		<result property="remark"  column="remark"  />
+		<result property="createDate" column="create_date" />
+		<result property="modifyDate"   column="modify_date"   />
+		<result property="sort"   column="sort"   />
+	</resultMap>
+	
+	<sql id="selectDictDataVo">
+        select item_num_id, item_id, item_name, item_val, dict_code, dict_id, state_mark, remark, create_date, modify_date
+		from t_sys_dict_item
+    </sql>
+	
+	<select id="selectDictDataByCode" parameterType="SysDictData" resultMap="SysDictDataResult">
+		<include refid="selectDictDataVo"/>
+		where state_mark = 'Y' and dict_code = #{dictCode} order by sort
+	</select>
+	
+	<select id="selectDictLabel" resultType="String">
+		select dict_label from t_sys_dict_item
+		where dict_id = #{dictId} and dict_code = #{dictCode}
+	</select>
+
+	<select id="selectDictDataByItemNumId" parameterType="Long" resultMap="SysDictDataResult">
+		<include refid="selectDictDataVo"/>
+		where item_num_id = #{itemNumId}
+	</select>
+
+
+	<select id="selectDictDataByCodeAndValue" resultMap="SysDictDataResult">
+		<include refid="selectDictDataVo"/>
+		where dict_code = #{dictCode}  and item_val = #{itemVal}
+	</select>
+
+	<select id="selectDictDataByCodeAndName" resultMap="SysDictDataResult">
+		<include refid="selectDictDataVo"/>
+		where dict_code = #{dictCode}  and item_Name = #{itemName}
+	</select>
+
+	
+	<select id="countDictDataByType" resultType="Integer">
+	    select count(1) from t_sys_dict_item where  dict_id = #{dictId}
+	</select>
+</mapper> 

@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.qh.common.core.utils.SpringUtils,\
+  com.qh.common.core.config.MyBatisPlusConfig,\
+  com.qh.common.core.config.SystemOssImagesConfig
+
+  

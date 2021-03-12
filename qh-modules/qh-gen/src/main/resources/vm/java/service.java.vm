@@ -1,0 +1,25 @@
+package ${packageName}.service;
+
+import ${packageName}.domain.${ClassName};
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+
+/**
+ * ${functionName}Service接口
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+public interface I${ClassName}Service extends IService<${ClassName}> {
+
+
+    /**
+     * 查询${functionName}集合
+     *
+     * @param page         分页信息
+     * @param ${className} 操作${functionName}对象
+     * @return 操作${functionName}集合
+     */
+    IPage<${ClassName}> select${ClassName}ListByPage(IPage<${ClassName}> page, ${ClassName} ${className});
+
+}

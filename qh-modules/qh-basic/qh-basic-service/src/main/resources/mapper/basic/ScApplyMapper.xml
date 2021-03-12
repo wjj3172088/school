@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScApplyMapper">
+    
+    <resultMap type="ScApply" id="ScApplyResult">
+        <result property="applyId"    column="apply_id"    />
+        <result property="applyTitle"    column="apply_title"    />
+        <result property="applyTag"    column="apply_tag"    />
+        <result property="applyType"    column="apply_type"    />
+        <result property="applyState"    column="apply_state"    />
+        <result property="applyValue"    column="apply_value"    />
+        <result property="applyUserId"    column="apply_user_id"    />
+        <result property="applyName"    column="apply_name"    />
+        <result property="applyAppellation"    column="apply_appellation"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="modifyTime"    column="modify_time"    />
+        <result property="actionTime"    column="action_time"    />
+        <result property="applyTarget"    column="apply_target"    />
+        <result property="applyTargetValue"    column="apply_target_value"    />
+        <result property="orgId"    column="org_id"    />
+    </resultMap>
+
+    <insert id="batchInsert" parameterType="ScApply">
+        insert into t_sc_apply(apply_title,apply_tag,apply_type,apply_state,apply_value,apply_user_id,
+        apply_appellation,create_time,modify_time,action_time,apply_target,apply_target_value,org_id,apply_name)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.applyTitle}, #{item.applyTag}, #{item.applyType}, #{item.applyState},#{item.applyValue},
+            #{item.applyUserId},#{item.applyAppellation},#{item.createTime},#{item.modifyTime},#{item.actionTime},
+            #{item.applyTarget},#{item.applyTargetValue},#{item.orgId},#{item.applyName})
+        </foreach>
+    </insert>
+</mapper>

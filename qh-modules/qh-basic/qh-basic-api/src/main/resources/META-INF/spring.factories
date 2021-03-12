@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.qh.basic.api.config.SystemPlugConfig,\
+  com.qh.common.core.utils.oss.PicUtils,\
+com.qh.basic.api.factory.RemoteTeacherFallbackFactory

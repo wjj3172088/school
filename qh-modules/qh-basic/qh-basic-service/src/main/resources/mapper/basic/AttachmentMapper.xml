@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.AttachmentMapper">
+
+    <resultMap type="Attachment" id="AttachmentResult">
+        <result property="attId" column="att_id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="bizType" column="biz_type"/>
+        <result property="sourceFileName" column="source_file_name"/>
+        <result property="fileType" column="file_type"/>
+        <result property="filePath" column="file_path"/>
+        <result property="delMark" column="del_mark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="rootPath" column="root_path"/>
+        <result property="accId" column="acc_id"/>
+    </resultMap>
+
+    <insert id="batchInsertAttachment" parameterType="Attachment">
+        insert into t_attachment(att_id,biz_id,biz_type,file_type,file_path,del_mark,root_path,acc_id,create_date)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.attId}, #{item.bizId}, #{item.bizType}, #{item.fileType},#{item.filePath},
+            #{item.delMark},#{item.rootPath},#{item.accId},#{item.createDate})
+        </foreach>
+    </insert>
+</mapper>

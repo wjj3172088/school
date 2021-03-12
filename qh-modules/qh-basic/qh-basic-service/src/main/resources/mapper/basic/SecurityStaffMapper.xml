@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.SecurityStaffMapper">
+
+    <resultMap type="SecurityStaff" id="SecurityStaffResult">
+        <result property="staffId" column="staff_id"/>
+        <result property="name" column="name"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="sex" column="sex"/>
+        <result property="nativePlace" column="native_place"/>
+        <result property="staffNumber" column="staff_number"/>
+        <result property="company" column="company"/>
+        <result property="politicalFace" column="political_face"/>
+        <result property="recruitType" column="recruit_type"/>
+        <result property="staffYear" column="staff_year"/>
+        <result property="workTime" column="work_time"/>
+        <result property="contractExpire" column="contract_expire"/>
+        <result property="phone" column="phone"/>
+        <result property="educationType" column="education_type"/>
+        <result property="idCard" column="id_card"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateDate" column="update_date"/>
+    </resultMap>
+
+    <!-- 批量新增 -->
+    <insert id="batchInsert" parameterType="SecurityStaff">
+        insert into t_sc_security_staff(staff_id,name,org_id,org_name,sex,native_place,staff_number,company,political_face,recruit_type,staff_year,work_time,contract_expire,phone,education_type,id_card,create_date,update_date)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.staffId}, #{item.name}, #{item.orgId}, #{item.orgName},#{item.sex},#{item.nativePlace},#{item.staffNumber},#{item.company},#{item.politicalFace},#{item.recruitType},
+            #{item.staffYear},#{item.workTime},#{item.contractExpire},#{item.phone},#{item.educationType},#{item.idCard},#{item.createDate},#{item.updateDate})
+        </foreach>
+    </insert>
+
+    <!-- 批量修改 -->
+    <update id="batchUpdate" parameterType="com.qh.basic.domain.SecurityStaff">
+        <foreach collection="list" item="item" separator=";">
+            update t_sc_security_staff
+            <set>
+                <if test="item.name != null and item.name != ''">name = #{item.name},</if>
+                <if test="item.sex != null">sex = #{item.sex},</if>
+                <if test="item.nativePlace != null and item.nativePlace != ''">native_place = #{item.nativePlace},</if>
+                <if test="item.staffNumber != null and item.staffNumber != ''">staff_number = #{item.staffNumber},</if>
+                <if test="item.company != null and item.company != ''">company = #{item.company},</if>
+                <if test="item.politicalFace != null">political_face = #{item.politicalFace},</if>
+                <if test="item.recruitType != null">recruit_type = #{item.recruitType},</if>
+                <if test="item.staffYear != null">staff_year = #{item.staffYear},</if>
+                <if test="item.workTime != null">work_time = #{item.workTime},</if>
+                <if test="item.contractExpire != null">contract_expire = #{item.contractExpire},</if>
+                <if test="item.phone != null and item.phone != ''">phone = #{item.phone},</if>
+                <if test="item.educationType != null">education_type = #{item.educationType},</if>
+                <if test="item.updateDate != null">update_date = #{item.updateDate},</if>
+            </set>
+            where id_card = #{item.idCard}
+        </foreach>
+    </update>
+</mapper>

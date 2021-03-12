@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.DcTempMeasMapper">
+    
+    <resultMap type="DcTempMeas" id="DcTempMeasResult">
+        <result property="measId"    column="meas_id"    />
+        <result property="deviceCode"    column="device_code"    />
+        <result property="tagNum"    column="tag_num"    />
+        <result property="temperature"    column="temperature"    />
+        <result property="recordTime"    column="record_time"    />
+        <result property="classId"    column="class_id"    />
+        <result property="OrgId"    column="org_id"    />
+        <result property="stuName"    column="stu_name"    />
+    </resultMap>
+
+    <!-- 体温检测按班级统计 -->
+    <select id="queryMeasClassList"  resultType="com.qh.basic.domain.vo.TempMeasClassVo">
+        select t2.class_id, concat(t3.item_name,t2.class_num) as class_name, t4.org_Id,t4.org_name,#{tempMeasReq.recordTimeStart} as recordTime,
+        (select count(1) from t_sc_student ts where ts.class_id = t2.class_id
+        and ts.state_mark = 'Y') as classTotalCount
+        ,IFNULL((select  count(distinct t.tag_num) from  t_dc_temp_meas t 	left join t_sc_student stu on  t.tag_num = stu.tag_num
+        where stu.class_id = t2.class_id and stu.state_mark = 'Y'
+        <if test="tempMeasReq.recordTimeStart != null and tempMeasReq.recordTimeStart != ''">
+            <![CDATA[
+                and t.record_time >= #{tempMeasReq.recordTimeStart}
+            ]]>
+        </if>
+        <if test="tempMeasReq.recordTimeEnd != null and tempMeasReq.recordTimeEnd != ''">
+            <![CDATA[
+                and t.record_time <= #{tempMeasReq.recordTimeEnd}
+            ]]>
+        </if>
+        ) ,0) classMeasCount
+        ,IFNULL((select count(distinct t.tag_num) as classAbnormalCount
+        from  t_dc_temp_meas t 	left join t_sc_student stu on  t.tag_num = stu.tag_num
+        where stu.class_id = t2.class_id and stu.state_mark = 'Y'
+        <if test="tempMeasReq.recordTimeStart != null and tempMeasReq.recordTimeStart != ''">
+            <![CDATA[
+                and t.record_time >= #{tempMeasReq.recordTimeStart}
+            ]]>
+        </if>
+        <if test="tempMeasReq.recordTimeEnd != null and tempMeasReq.recordTimeEnd != ''">
+            <![CDATA[
+                and t.record_time <= #{tempMeasReq.recordTimeEnd}
+            ]]>
+        </if>
+        <if test="tempMeasReq.max != null">
+            <![CDATA[
+                and t.temperature > #{tempMeasReq.max}
+            ]]>
+        </if>
+        ),0) classAbnormalCount
+        from t_sc_class t2
+        left join t_sys_dict_item t3 on t3.dict_code = 'grade' and t3.item_val = t2.grade
+        left join t_sys_org t4 on t2.org_id =  t4.org_id
+        where    t2.state_mark = 'Y'
+        <if test="tempMeasReq.orgId != null and tempMeasReq.orgId != ''">
+            and t4.org_id = #{tempMeasReq.orgId}
+        </if>
+        <if test="tempMeasReq.classId != null and tempMeasReq.classId != ''">
+            and t2.class_id = #{tempMeasReq.classId}
+        </if>
+        order by  t2.grade asc, t2.class_num asc
+    </select>
+
+    <!-- 体温检测按学生明细统计 -->
+    <select id="queryMeasStuList" resultType="com.qh.basic.domain.vo.TempMeasStuVo">
+        select t.meas_id,t.device_code,t.tag_num,t.temperature,t.record_time,t2.class_id,t4.org_id,
+        stu.stu_name,concat(t3.item_name,t2.class_num) as class_name, t4.org_name,
+        (CASE WHEN t.temperature > #{tempMeasReq.max} THEN '异常' ELSE '正常' END) as state
+        from t_dc_temp_meas t
+        left join t_sc_student stu on t.tag_num = stu.tag_num and stu.state_mark = 'Y'
+        left join t_sc_class t2 on stu.class_id = t2.class_id
+        left join t_sys_dict_item t3 on t3.dict_code = 'grade' and t3.item_val = t2.grade
+        left join t_sys_org t4 on t2.org_id =  t4.org_id
+        where 1=1
+        <if test="tempMeasReq.orgId != null and tempMeasReq.orgId != ''">
+            and t4.org_id = #{tempMeasReq.orgId}
+        </if>
+        <if test="tempMeasReq.classId != null and tempMeasReq.classId != ''">
+            and t2.class_id = #{tempMeasReq.classId}
+        </if>
+        <if test="tempMeasReq.stuName != null and tempMeasReq.stuName != ''">
+            and stu.stu_name like CONCAT('%',#{tempMeasReq.stuName},'%' )
+        </if>
+        <if test="tempMeasReq.tagNum != null and tempMeasReq.tagNum != ''">
+            and t.tag_num like CONCAT('%',#{tempMeasReq.tagNum},'%' )
+        </if>
+        <if test="tempMeasReq.recordTimeStart != null and tempMeasReq.recordTimeStart != ''">
+            <![CDATA[
+                and t.record_time >= #{tempMeasReq.recordTimeStart}
+            ]]>
+        </if>
+        <if test="tempMeasReq.recordTimeEnd != null and tempMeasReq.recordTimeEnd != ''">
+            <![CDATA[
+                and t.record_time <= #{tempMeasReq.recordTimeEnd}
+            ]]>
+        </if>
+        <if test="tempMeasReq.temperature != null and tempMeasReq.max != null and tempMeasReq.temperature == 0">
+            <![CDATA[
+                and t.temperature <= #{tempMeasReq.max}
+            ]]>
+        </if>
+        <if test="tempMeasReq.temperature != null and tempMeasReq.max != null and tempMeasReq.temperature == 1">
+            <![CDATA[
+                and t.temperature > #{tempMeasReq.max}
+            ]]>
+        </if>
+        <![CDATA[ order by t.record_time desc]]>
+    </select>
+
+</mapper>

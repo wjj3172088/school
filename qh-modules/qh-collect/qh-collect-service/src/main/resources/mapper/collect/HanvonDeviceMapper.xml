@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.collect.mapper.HanvonDeviceMapper">
+    
+    <resultMap type="HanvonDevice" id="HanvonDeviceResult">
+        <result property="hdId"    column="hd_id"    />
+        <result property="deviceId"    column="device_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="deviceName"    column="device_name"    />
+        <result property="location"    column="location"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="createUserName"    column="create_user_name"    />
+        <result property="updateDate"    column="update_date"    />
+        <result property="updateUserName"    column="update_user_name"    />
+        <result property="deviceType"    column="device_type"    />
+        <result property="onlineState"    column="online_state"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+
+</mapper>

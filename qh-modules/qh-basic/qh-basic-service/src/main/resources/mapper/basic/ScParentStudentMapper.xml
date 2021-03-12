@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScParentStudentMapper">
+
+    <resultMap type="ScParentStudent" id="ScParentStudentResult">
+        <result property="psId" column="ps_id"/>
+        <result property="accId" column="acc_id"/>
+        <result property="stuId" column="stu_id"/>
+        <result property="relation" column="relation"/>
+        <result property="relationValue" column="relation_value"/>
+        <result property="def" column="def"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="prtAccType" column="prt_acc_type"/>
+        <result property="expireTime" column="expire_time"/>
+    </resultMap>
+
+    <!-- 获取是否存在默认学生 -->
+    <select id="countDefaultByAccId" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from t_sc_parent_student where acc_id = #{accId} and def = 1;
+    </select>
+
+    <!--删除学生和家长的关系-->
+    <delete id="deleteByStuIdList" parameterType="java.lang.String">
+        delete from t_sc_parent_student
+        where stu_id in
+        <foreach item="item" index="index" collection="stuIdList" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 设置家长的默认孩子
+        查询当前关系表中需要删除的学生中是默认孩子的数据，这些数据才需要设置家长的默认孩子，
+        并且需要根据acc_id分组，因为一个家长可能有超过两个孩子的情况，在剩下的孩子找出一个ps_id最小的原先的def=0的作为当前家长的默认孩子
+     -->
+    <update id="setParentDefaultChild">
+        update t_sc_parent_student set def=1 where ps_id in (
+        select ps_id from(
+        select min(ps_id) ps_id from t_sc_parent_student
+        where def=0 and acc_id in
+        (select acc_id from t_sc_parent_student where stu_id in
+        <foreach item="item" index="index" collection="stuIdList" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        and def=1) group by acc_id) a)
+    </update>
+</mapper>

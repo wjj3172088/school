@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScPublicityMapper">
+    
+    <resultMap type="ScPublicity" id="ScPublicityResult">
+        <result property="publicityId"    column="publicity_id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="url"    column="url"    />
+        <result property="picurl"    column="picurl"    />
+        <result property="type"    column="type"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="sortId"    column="sort_id"    />
+        <result property="stateMark"    column="state_mark"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+    </resultMap>
+
+
+    <select id="selectListByPage" parameterType="ScPublicity" resultMap="ScPublicityResult">
+        select t.publicity_id,t.title,t.content,t.url,t.picurl,t.type,t.create_date,t.modify_date,t.sort_id,t.state_mark,t.org_id
+        ,t6.org_name
+        FROM t_sc_publicity t
+        left join t_sys_org t6 on t.org_id = t6.org_id
+        where 1=1
+        <if test="scPublicity.orgId != null and scPublicity.orgId != ''">
+            and t.org_id in (#{scPublicity.orgId})
+        </if>
+        <if test="scPublicity.title != null and scPublicity.title != ''">
+            and t.title like CONCAT('%',#{scPublicity.title},'%' )
+        </if>
+        <if test="scPublicity.stateMark != null">
+            and t.state_mark = #{scPublicity.stateMark}
+        </if>
+        <if test="scPublicity.beginTime != null and scPublicity.beginTime != ''">
+            <![CDATA[
+			    and t.create_date >= #{scPublicity.beginTime}
+			]]>
+        </if>
+        <if test="scPublicity.endTime != null and scPublicity.endTime != ''">
+            <![CDATA[
+			    and t.create_date <= #{scPublicity.endTime}
+			]]>
+        </if>
+        order by t.create_date desc
+    </select>
+</mapper>

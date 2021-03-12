@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScMoveAccOtherMapper">
+
+    <resultMap type="ScMoveAccOther" id="ScMoveAccOtherResult">
+        <result property="accId" column="acc_id"/>
+        <result property="idCard" column="id_card"/>
+        <result property="idType" column="id_type"/>
+        <result property="integral" column="integral"/>
+        <result property="motorNum" column="motor_num"/>
+        <result property="notMotorNum" column="not_motor_num"/>
+        <result property="motorTagNum" column="motor_tag_num"/>
+        <result property="notMotorTagNum" column="not_motor_tag_num"/>
+    </resultMap>
+
+    <!-- 根据账号查询 -->
+    <select id="countByAccId" parameterType="String" resultType="Long">
+		select count(*) from t_sc_move_acc_other
+		where acc_id = #{accId}
+	</select>
+
+    <!-- 修改 -->
+    <update id="modify" parameterType="com.qh.basic.domain.ScMoveAccOther">
+        update t_sc_move_acc_other
+        <set>
+            <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
+            <if test="idType != null and idType != ''">id_type = #{idType},</if>
+            <if test="integral != null and integral != ''">integral = #{integral},</if>
+            <if test="motorNum != null">motor_num = #{motorNum},</if>
+            <if test="notMotorNum != null">not_motor_num = #{notMotorNum},</if>
+            <if test="motorTagNum != null">motor_tag_num = #{motorTagNum},</if>
+            <if test="notMotorTagNum != null">not_motor_tag_num = #{notMotorTagNum},</if>
+        </set>
+        where acc_id = #{accId}
+    </update>
+</mapper>

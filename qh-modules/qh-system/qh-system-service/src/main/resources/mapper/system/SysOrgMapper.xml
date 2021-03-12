@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.system.mapper.SysOrgMapper">
+
+    <resultMap type="SysOrg" id="SysOrgResult">
+        <id property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="orgType" column="org_type"/>
+        <result property="upOrgId" column="up_org_id"/>
+        <result property="provinceCode" column="province_code"/>
+        <result property="prefectureCode" column="prefecture_code"/>
+        <result property="countyCode" column="county_code"/>
+        <result property="orgSort" column="org_sort"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="remark" column="remark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <sql id="selectOrgVo">
+        select *
+		from t_sys_org
+    </sql>
+
+    <select id="selectOrgAll" resultMap="SysOrgResult">
+        <include refid="selectOrgVo"/>
+    </select>
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.qh</groupId>
+        <artifactId>qh</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <modules>
+	    <module>qh-auth</module>
+        <module>qh-system</module>
+        <module>qh-gen</module>
+        <module>qh-job</module>
+        <module>qh-basic</module>
+        <module>qh-collect</module>
+    </modules>
+
+    <artifactId>qh-modules</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        qh-modules业务模块
+    </description>
+
+</project>

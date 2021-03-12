@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.AppStatisticsMapper">
+
+
+
+	<!-- 学生卡激活统计（原注册数统计修改后的需求） -->
+	<select id="getStudentStateMarkCount"
+			resultType="java.lang.Long">
+		select COUNT(stu.stu_id) from t_sc_student as stu
+		LEFT JOIN
+		t_sc_parent_student as ps on stu.stu_id = ps.stu_id
+		LEFT JOIN
+		t_sc_move_acc as sma on sma.acc_id = ps.acc_id
+		where 1=1
+		<if test="orgId != null and orgId != ''">
+			and stu.org_id = #{orgId}
+		</if>
+		<if test="classId != null and classId != ''">
+			and stu.class_id = #{classId}
+		</if>
+		<if test="createTime != null and createTime != ''">
+			and stu.create_date &gt;=#{createTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and stu.create_date &lt;=#{endTime}
+		</if>
+		and sma.last_time is not null
+		and stu.state_mark = 'Y'
+		and sma.acc_type
+		= 'P'
+	</select>
+
+	<resultMap type="com.qh.basic.model.response.StudentStatisticsResp" id="studentReturn">
+		<result column="stu_name" jdbcType="VARCHAR"
+				property="stuName" />
+		<result column="org_name" jdbcType="VARCHAR"
+				property="orgName" />
+		<result column="className" jdbcType="VARCHAR"
+				property="className" />
+		<result column="tag_num" jdbcType="VARCHAR"
+				property="tagNum" />
+		<result column="guardian_mobile" jdbcType="VARCHAR"
+				property="guardianMobile" />
+		<result column="relation" jdbcType="VARCHAR"
+				property="relation" />
+		<result column="last_time" jdbcType="VARCHAR"
+				property="lastTime" />
+		<result column="acc_num" jdbcType="VARCHAR"
+				property="accNum" />
+	</resultMap>
+
+	<!-- 学生卡激活统计（原注册数统计修改后的需求） -->
+	<select id="getStudentStateMarkCount"
+		resultType="java.lang.Long">
+		select COUNT(stu.stu_id) from t_sc_student as stu
+		LEFT JOIN
+		t_sc_parent_student as ps on stu.stu_id = ps.stu_id
+		LEFT JOIN
+		t_sc_move_acc as sma on sma.acc_id = ps.acc_id
+		where 1=1
+		<if test="orgId != null and orgId != ''">
+			and stu.org_id = #{orgId}
+		</if>
+		<if test="classId != null and classId != ''">
+			and stu.class_id = #{classId}
+		</if>
+		<if test="createTime != null and createTime != ''">
+			and stu.create_date &gt;=#{createTime}
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and stu.create_date &lt;=#{endTime}
+		</if>
+		and sma.last_time is not null
+		and stu.state_mark = 'Y'
+		and sma.acc_type
+		= 'P'
+	</select>
+
+	<select id="selectListByPage" parameterType="RegisterStatisticsReq" resultMap="studentReturn">
+		SELECT
+		stu.stu_name,stu.tag_num,CONCAT(class.grade,class.class_num) as className,org.org_name,stu.guardian_mobile
+		,sma.acc_num,t2.item_name as relation
+		,CASE IFNULL(sma.last_time,-1)
+		WHEN  -1 THEN -1
+		ELSE 1 END AS last_time
+		FROM
+		t_sc_student AS stu
+		LEFT JOIN t_sc_parent_student AS ps ON stu.stu_id = ps.stu_id
+		LEFT JOIN t_sc_move_acc AS sma ON sma.acc_id = ps.acc_id
+		LEFT JOIN t_sys_org as org on stu.org_id = org.org_id
+		LEFT JOIN t_sc_class as class on stu.class_id = class.class_id
+		LEFT JOIN t_sys_dict_item t2 on t2.dict_code = 'guarRelation' and t2.item_val = ps.relation
+		WHERE 1=1
+		<if test="RegisterStatisticsReq.orgId != null and RegisterStatisticsReq.orgId != ''">
+			and stu.org_id = #{RegisterStatisticsReq.orgId}
+		</if>
+		<if test="RegisterStatisticsReq.classId != null and RegisterStatisticsReq.classId != ''">
+			and stu.class_id = #{RegisterStatisticsReq.classId}
+		</if>
+		<if test="RegisterStatisticsReq.stuName != null and RegisterStatisticsReq.stuName != ''">
+		    and stu.stu_name like CONCAT('%',#{RegisterStatisticsReq.stuName},'%')
+		</if>
+		<if test="RegisterStatisticsReq.tagNum != null and RegisterStatisticsReq.tagNum != ''">
+		    and stu.tag_num like CONCAT('%',#{RegisterStatisticsReq.tagNum},'%')
+		</if>
+		<if test="RegisterStatisticsReq.activateState != null  and RegisterStatisticsReq.activateState == 0 ">
+			and sma.last_time IS  NULL
+		</if>
+		<if test="RegisterStatisticsReq.activateState != null  and RegisterStatisticsReq.activateState == 1 ">
+			and sma.last_time IS NOT NULL
+		</if>
+		AND stu.state_mark = 'Y'
+		AND sma.acc_type = 'P'
+		order by sma.last_time asc
+	</select>
+
+
+	<select id="getStudentCount" resultType="java.lang.Long">
+		SELECT
+		count(stu.stu_id)
+		FROM
+		t_sc_student AS stu
+		LEFT JOIN t_sc_parent_student AS ps ON stu.stu_id = ps.stu_id
+		LEFT JOIN t_sc_move_acc AS sma ON sma.acc_id = ps.acc_id
+		LEFT JOIN t_sys_org as org on stu.org_id = org.org_id
+		LEFT JOIN t_sc_class as class on stu.class_id = class.class_id
+		WHERE
+		sma.last_time IS NOT NULL
+		<if test="orgId != null and orgId != ''">
+			and stu.org_id = #{orgId}
+		</if>
+		<if test="classId != null and classId != ''">
+			and stu.class_id = #{classId}
+		</if>
+		<if test="stuName != null and stuName != ''">
+			and stu.stu_name like CONCAT('%',#{stuName},'%')
+		</if>
+		<if test="tagNum != null and tagNum != ''">
+			and stu.tag_num like CONCAT('%',#{tagNum},'%')
+		</if>
+		AND stu.state_mark = 'Y'
+		AND sma.acc_type = 'P';
+	</select>
+
+</mapper>

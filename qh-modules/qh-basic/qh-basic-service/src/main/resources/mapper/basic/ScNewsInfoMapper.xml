@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScNewsInfoMapper">
+    
+    <resultMap type="ScNewsInfo" id="ScNewsInfoResult">
+        <result property="publicityId"    column="publicity_id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="url"    column="url"    />
+        <result property="picurl"    column="picurl"    />
+        <result property="type"    column="type"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="sortId"    column="sort_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="newsGroupId"    column="news_group_id"    />
+    </resultMap>
+
+    <select id="selectListByPage" parameterType="ScNewsInfo" resultMap="ScNewsInfoResult">
+        select t.publicity_id,t.title,t.content,t.url,t.picurl,t.type,t.create_date,t.modify_date,t.sort_id,t.org_id
+        ,t6.org_name
+        FROM t_sc_news_info t
+        left join t_sys_org t6 on t.org_id = t6.org_id
+        where 1=1
+        <if test="scNewsInfo.orgId != null and scNewsInfo.orgId != ''">
+            and t.org_id in (#{scNewsInfo.orgId})
+        </if>
+        <if test="scNewsInfo.title != null and scNewsInfo.title != ''">
+            and t.title like CONCAT('%',#{scNewsInfo.title},'%' )
+        </if>
+        <if test="scNewsInfo.beginTime != null and scNewsInfo.beginTime != ''">
+            <![CDATA[
+			    and t.create_date >= #{scNewsInfo.beginTime}
+			]]>
+        </if>
+        <if test="scNewsInfo.endTime != null and scNewsInfo.endTime != ''">
+            <![CDATA[
+			    and t.create_date <= #{scNewsInfo.endTime}
+			]]>
+        </if>
+        order by t.create_date desc
+    </select>
+
+    <!-- 批量新增 -->
+    <insert id="batchInsert" parameterType="ScNewsInfo">
+        insert into t_sc_news_info(publicity_id,title,content,url,picurl,sort_id,org_id,news_group_id,create_date,modify_date)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.publicityId}, #{item.title}, #{item.content}, #{item.url},#{item.picurl},#{item.sortId},#{item.orgId},#{item.newsGroupId},#{item.createDate},#{item.modifyDate})
+        </foreach>
+    </insert>
+
+    <!-- 批量修改 -->
+    <update id="batchUpdate">
+        <foreach collection="list" item="item" separator=";">
+            update t_sc_news_info
+            <set>
+                <if test="item.title != null and item.title != ''">title = #{item.title},</if>
+                <if test="item.content != null and item.content != ''">content = #{item.content},</if>
+                <if test="item.url != null and item.url != ''">url = #{item.url},</if>
+                <if test="item.picurl != null and item.picurl != ''">picurl = #{item.picurl},</if>
+                <if test="item.sortId != null">sort_id = #{item.sortId},</if>
+                <if test="item.modifyDate != null and item.modifyDate != ''">modify_date = #{item.modifyDate},</if>
+            </set>
+            where publicity_id = #{item.publicityId}
+        </foreach>
+    </update>
+
+    <!-- 批量删除 -->
+    <delete id="batchDelete">
+        delete from t_sc_news_info where publicity_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item.publicityId}
+        </foreach>
+    </delete>
+</mapper>

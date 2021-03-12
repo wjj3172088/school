@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.system.mapper.SysDictTypeMapper">
+
+    <resultMap type="SysDictType" id="SysDictTypeResult">
+        <id property="dictId" column="dict_id"/>
+        <result property="dictName" column="dict_name"/>
+        <result property="dictCode" column="dict_code"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="remark" column="remark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <sql id="selectDictTypeVo">
+        select dict_id, dict_name, dict_code, state_mark, remark, create_date, modify_date
+		from t_sys_dict
+    </sql>
+
+    <select id="selectDictTypeAll" resultMap="SysDictTypeResult">
+        <include refid="selectDictTypeVo"/>
+    </select>
+
+    <select id="selectDictTypeById" parameterType="String" resultMap="SysDictTypeResult">
+        <include refid="selectDictTypeVo"/>
+        where dict_id = #{dictId}
+    </select>
+
+    <select id="selectDictTypeByType" parameterType="String" resultMap="SysDictTypeResult">
+        <include refid="selectDictTypeVo"/>
+        where dict_type = #{dictType}
+    </select>
+
+    <select id="checkDictTypeUnique" parameterType="String" resultMap="SysDictTypeResult">
+        <include refid="selectDictTypeVo"/>
+        where dict_type = #{dictType} limit 1
+    </select>
+</mapper> 

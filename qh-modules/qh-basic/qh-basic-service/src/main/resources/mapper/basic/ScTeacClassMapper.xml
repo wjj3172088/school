@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScTeacClassMapper">
+
+    <resultMap type="ScTeacClass" id="ScTeacClassResult">
+        <result property="tcId" column="tc_id"/>
+        <result property="teacId" column="teac_id"/>
+        <result property="classId" column="class_id"/>
+        <result property="direct" column="direct"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="def" column="def"/>
+        <result property="subjectId" column="subject_id"/>
+        <result property="subjectName" column="subject_name"/>
+    </resultMap>
+
+    <resultMap type="ClassTeacherVo" id="ScClassTeacherVoResult">
+        <result property="idCard" column="id_card"/>
+        <result property="mobile" column="mobile"/>
+        <result property="teacId" column="teac_id"/>
+        <result property="grade" column="grade"/>
+        <result property="classNum" column="class_num"/>
+    </resultMap>
+
+    <!-- 删除班级老师关系 -->
+    <delete id="delClassTeachByClassId">
+		delete from  t_sc_teac_class  where class_id = #{classId}
+	</delete>
+
+    <!-- 删除班级老师关系 -->
+    <delete id="delClassTeachByTeachId">
+		delete from  t_sc_teac_class
+		<where>
+            <if test="teacId != null and teacId != ''">
+                teac_id = #{teacId}
+            </if>
+            <!-- 为了兼容老系统，班级和班主任的关系必须要有一条，如果没有关联班主任的则此表的老师id为null -->
+            <if test='direct=="Y"'>
+                or teac_id is null
+            </if>
+        </where>
+	</delete>
+
+    <!-- 删除班级和老师的关系(通过老师班级id) -->
+    <delete id="batchDeleteByClassId">
+        delete from t_sc_teac_class where class_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 删除班级和老师的关系(通过老师id) -->
+    <delete id="batchDelClassTeachByTeachId">
+        delete from t_sc_teac_class where direct = 'N'
+        and teac_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!--解绑班主任(通过老师id) -->
+    <update id="updateClassTeacNullByClassId">
+        update t_sc_teac_class set teac_id = null where direct = 'Y'
+        and class_id in (
+        <foreach collection="classIdList" item="classId" separator=",">
+            #{classId}
+        </foreach>)
+    </update>
+
+    <!-- 根据年级班级查询 -->
+    <select id="selectByGradeAndClassNum" resultMap="ScClassTeacherVoResult">
+        select
+        t3.id_card,t3.mobile,t3.teac_id
+        from t_sc_class t
+        left join t_sc_teac_class t2 on t.class_id = t2.class_id and t2.direct = 'Y'
+        left join t_sc_teacher t3 on t2.teac_id = t3.teac_id
+        where 1=1
+        and t.state_mark = 'Y'
+        <if test="grade != null and grade != ''">
+            and t.grade = #{grade}
+        </if>
+        <if test="classNum != null and classNum != ''">
+            and t.class_num = #{classNum}
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and t.org_id = #{orgId}
+        </if>
+        limit 1
+    </select>
+
+    <!-- 根据年级班级查询 -->
+    <select id="selectByClassId" resultMap="ScClassTeacherVoResult">
+        select
+        t3.id_card,t3.mobile,t3.teac_id
+        from t_sc_class t
+        left join t_sc_teac_class t2 on t.class_id = t2.class_id and t2.direct = 'Y'
+        left join t_sc_teacher t3 on t2.teac_id = t3.teac_id
+        where 1=1
+        and t.state_mark = 'Y'
+        <if test="classId != null and classId != ''">
+            and t.class_id = #{classId}
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and t.org_id = #{orgId}
+        </if>
+        limit 1
+    </select>
+
+    <!-- 根据年级班级查询 -->
+    <select id="selectByTeacId" resultMap="ScClassTeacherVoResult">
+        select
+        t.grade,t.class_num
+        from t_sc_class t
+        left join t_sc_teac_class t2 on t.class_id = t2.class_id and t2.direct = 'Y'
+        left join t_sc_teacher t3 on t2.teac_id = t3.teac_id
+        where 1=1
+        and t.state_mark = 'Y'
+        <if test="teacId != null and teacId != ''">
+            and t3.teac_id = #{teacId}
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and t.org_id = #{orgId}
+        </if>
+        limit 1
+    </select>
+</mapper>

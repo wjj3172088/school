@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScStudentMapper">
+
+    <resultMap type="ScStudent" id="ScStudentResult">
+        <result property="stuId" column="stu_id"/>
+        <result property="sex" column="sex"/>
+        <result property="idCard" column="id_card"/>
+        <result property="stuName" column="stu_name"/>
+        <result property="dateBirth" column="date_birth"/>
+        <result property="classId" column="class_id"/>
+        <result property="stuNum" column="stu_num"/>
+        <result property="stuCode" column="stu_code"/>
+        <result property="tagNum" column="tag_num"/>
+        <result property="guardianName" column="guardian_name"/>
+        <result property="guardianRelation" column="guardian_relation"/>
+        <result property="guardianMobile" column="guardian_mobile"/>
+        <result property="awayState" column="away_state"/>
+        <result property="stuState" column="stu_state"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="remark" column="remark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="lowState" column="low_state"/>
+        <result property="faceState" column="face_state"/>
+        <result property="orgId" column="org_id"/>
+        <result property="activityDate" column="activity_date"/>
+        <result property="avatar" column="avatar"/>
+        <result property="graduateType" column="graduate_type"/>
+    </resultMap>
+
+    <resultMap type="StudentExtendVo" id="StudentExtendResult">
+        <result property="stuId" column="stu_id"/>
+        <result property="sex" column="sex"/>
+        <result property="idCard" column="id_card"/>
+        <result property="stuName" column="stu_name"/>
+        <result property="dateBirth" column="date_birth"/>
+        <result property="classId" column="class_id"/>
+        <result property="stuNum" column="stu_num"/>
+        <result property="stuCode" column="stu_code"/>
+        <result property="tagNum" column="tag_num"/>
+        <result property="guardianName" column="guardian_name"/>
+        <result property="guardianRelation" column="guardian_relation"/>
+        <result property="guardianMobile" column="guardian_mobile"/>
+        <result property="awayState" column="away_state"/>
+        <result property="stuState" column="stu_state"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="remark" column="remark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="lowState" column="low_state"/>
+        <result property="faceState" column="face_state"/>
+        <result property="orgId" column="org_id"/>
+        <result property="activityDate" column="activity_date"/>
+        <result property="avatar" column="avatar"/>
+        <result property="orgName" column="org_name"/>
+        <result property="className" column="class_name"/>
+        <result property="teacId" column="teac_id"/>
+        <result property="teacName" column="teac_name"/>
+        <result property="teacMobile" column="teac_mobile"/>
+    </resultMap>
+
+    <resultMap type="StudentExportVo" id="StudentExportVoResult">
+        <result property="tagNum" column="tag_num"/>
+        <result property="stuName" column="stu_name"/>
+        <result property="idCard" column="id_card"/>
+        <result property="guardianName" column="guardian_name"/>
+        <result property="guardianMobile" column="guardian_mobile"/>
+        <result property="guardianRelation" column="guardian_relation"/>
+        <result property="className" column="class_name"/>
+    </resultMap>
+
+    <select id="selectListByPage" parameterType="map" resultType="java.util.HashMap">
+        select
+        t.stu_id stuId,
+        t.id_card idCard,
+        t.stu_name stuName,
+        t.class_id classId,
+        concat(t3.item_name,t2.class_num) as className,
+        t6.org_name orgName,
+        t.stu_num stuNum,
+        t.stu_code stuCode,
+        t.tag_num tagNum,
+        t.away_state awayState,
+        t.state_mark stateMark,
+        t.remark,
+        t.modify_date modifyDate,
+        t.low_state lowState,
+        t.face_state faceState
+        FROM t_sc_student t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        LEFT JOIN t_sys_dict_item t3 ON t3.dict_code = 'grade' AND t3.item_val = t2.grade
+        left join t_sys_org t6 on t2.org_id = t6.org_id
+        where 1=1
+        and t.state_mark = 'Y'
+        <if test="map.stuName != null and map.stuName != ''">
+            and t.stu_name like CONCAT('%',#{map.stuName},'%' )
+        </if>
+        <if test="map.classId != null and map.classId != ''">
+            and t.class_id = #{map.classId}
+        </if>
+        <if test="map.orgId != null and map.orgId != ''">
+            and t2.org_id = #{map.orgId}
+        </if>
+        <if test="map.tagNum != null and map.tagNum != ''">
+            and t.tag_num = #{map.tagNum}
+        </if>
+        <if test="map.guardianMobile != null and map.guardianMobile != ''">
+            and t.stu_id in(select stu_id from t_sc_parent_student
+            where acc_id
+            in (select acc_id from t_sc_move_acc where acc_num =#{map.guardianMobile}
+            and state_mark !='D')
+            )
+        </if>
+        order by t2.org_id asc,t.modify_date desc
+    </select>
+
+    <select id="selectStudentExtendVoByPage" parameterType="map" resultType="com.qh.basic.domain.vo.StudentExtendVo">
+        select
+        t.stu_id,
+        t.stu_name,
+        t.id_card,
+        t.stu_num,
+        t.stu_code,
+        t6.org_id,
+        t6.org_name,
+        t.class_id,
+        concat(t3.item_name,t2.class_num) as class_name,
+        t.guardian_name,
+        t.guardian_relation,
+        t.guardian_mobile,
+        t.tag_num,
+        t5.teac_id teac_id,
+        t5.teac_name teac_name,
+        t5.mobile teac_mobile
+        FROM t_sc_student t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        LEFT JOIN t_sys_dict_item t3 ON t3.dict_code = 'grade' AND t3.item_val = t2.grade
+        left join t_sc_teac_class t4 on t2.class_id = t4.class_id and t4.direct = 'Y'
+        left join t_sc_teacher t5 on t4.teac_id = t5.teac_id
+        left join t_sys_org t6 on t2.org_id = t6.org_id
+        where t.state_mark = 'Y'
+        and t.org_id = #{map.orgId} and t2.grade in
+        <foreach item="item" index="index" collection="map.gradeList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <!-- 学生导出 -->
+    <select id="selectExportList" parameterType="map"
+            resultType="com.qh.basic.domain.vo.StudentExportVo">
+        select
+        t.tag_num,
+        t.stu_name,
+        t.id_card,
+        t.guardian_name,
+        t4.item_name guardian_relation,
+        t.guardian_mobile,
+        concat(t3.item_name,t2.class_num) as class_name
+        FROM t_sc_student t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        LEFT JOIN t_sys_dict_item t3 ON t3.dict_code = 'grade' AND t3.item_val = t2.grade
+        LEFT JOIN t_sys_dict_item t4 ON t4.dict_code = 'guarRelation' AND t4.item_val = t.guardian_relation
+        where t.state_mark = 'Y' and t.org_id = #{map.orgId}
+        <if test="map.stuName != null and map.stuName != ''">
+            and t.stu_name = #{map.stuName}
+        </if>
+        <if test="map.classId != null and map.classId != ''">
+            and t2.class_id = #{map.classId}
+        </if>
+        <if test="map.tagNum != null and map.tagNum != ''">
+            and t.tag_num = #{map.tagNum}
+        </if>
+        <if test="map.guardianMobile != null and map.guardianMobile != ''">
+            and t.guardian_mobile = #{map.guardianMobile}
+        </if>
+        order by t.create_date desc
+    </select>
+
+    <!-- 通讯录 -->
+    <select id="selectList" parameterType="map" resultType="java.util.HashMap">
+        select
+        t3.ps_id stuId,
+        t.stu_name stuName,
+        t4.acc_id accId,
+        CONCAT(SUBSTR(t4.acc_num,1,3),"****",SUBSTR(t4.acc_num,8)) mobile,t3.relation relationType
+        FROM t_sc_student t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        LEFT JOIN t_sc_parent_student t3 on t.stu_id=t3.stu_id
+        LEFT JOIN t_sc_move_acc t4 on t3.acc_id=t4.acc_id and t4.state_mark !='D'
+        where 1=1
+        and t.state_mark = 'Y' and t4.state_mark='Y'
+        <if test="map.paraValue != null and map.paraValue != ''">
+            and (t.stu_name like CONCAT('%',#{map.paraValue},'%' ) or t4.acc_num =#{map.paraValue})
+        </if>
+        <if test="map.orgId != null and map.orgId != ''">
+            and t2.org_id = #{map.orgId}
+        </if>
+        <if test="map.classId != null and map.classId != ''">
+            and t.class_id = #{map.classId}
+        </if>
+        order by t2.org_id asc,t.modify_date desc
+    </select>
+
+    <select id="selectStudentByMap" parameterType="map" resultMap="ScStudentResult">
+        select *
+        from t_sc_parent_student t
+        join t_sc_student t1 on t.stu_id  = t1.stu_id
+        join t_sc_move_acc b on t.acc_id = b.acc_id
+        where t1.state_mark = 'Y'
+        <if test="orgId != null and orgId != ''">
+            and t1.org_id = #{orgId}
+        </if>
+        <if test="stuIdList != null and stuIdList != ''">
+            and t1.stu_id in (${stuIdList})
+        </if>
+    </select>
+
+    <!-- 根据学生id修改学生班级 -->
+    <update id="updateClassByStuId">
+        update t_sc_student set class_id = #{classId} where stu_id in
+        <foreach item="item" index="index" collection="stuIdList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 根据年级设置学生毕业 -->
+    <update id="graduate">
+        update t_sc_student set state_mark = 'D',graduate_type = 1,modify_date = sysdate()
+        where state_mark != 'D' and org_id = #{orgId} and class_id = #{classId}
+    </update>
+
+    <!--删除 -->
+    <update id="delStudent">
+        update t_sc_student set state_mark = 'D' where state_mark != 'D' and org_id = #{orgId} and stu_id in
+        <foreach item="item" index="index" collection="stuIdList" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 毕业人数 -->
+    <select id="countGraduate" parameterType="map" resultType="java.lang.Integer">
+		select count(*) from t_sc_student t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        where t.state_mark = 'Y'
+        and t.org_id = #{orgId} and t2.grade in
+        <foreach item="item" index="index" collection="gradeList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</select>
+</mapper>

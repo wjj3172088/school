@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.PhysicalDefenseMapper">
+
+    <resultMap type="PhysicalDefense" id="PhysicalDefenseResult">
+        <result property="defenseId" column="defense_id"/>
+        <result property="defenseType" column="defense_type"/>
+        <result property="defenseTypeName" column="defense_type_name"/>
+        <result property="name" column="name"/>
+        <result property="count" column="count"/>
+        <result property="configTime" column="config_time"/>
+        <result property="expireTime" column="expire_time"/>
+        <result property="images" column="images"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="location" column="location"/>
+        <result property="enable" column="enable"/>
+        <result property="remark" column="remark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateDate" column="update_date"/>
+    </resultMap>
+
+    <!-- 批量新增 -->
+    <insert id="batchInsert" parameterType="PhysicalDefense">
+        insert into t_sc_physical_defense(defense_id,defense_type,defense_type_name,name,count,config_time,expire_time,images,org_id,org_name,location,enable,remark,create_date,update_date)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.defenseId}, #{item.defenseType}, #{item.defenseTypeName}, #{item.name},#{item.count},#{item.configTime},#{item.expireTime},#{item.images},#{item.orgId},
+            #{item.orgName},#{item.location},#{item.enable},#{item.remark},#{item.createDate},#{item.updateDate})
+        </foreach>
+    </insert>
+
+    <!-- 批量修改 -->
+    <update id="batchUpdate" parameterType="com.qh.basic.domain.PhysicalDefense">
+        <foreach collection="list" item="item" separator=";">
+            update t_sc_physical_defense
+            <set>
+                defense_type = #{item.defenseType},
+                defense_type_name = #{item.defenseTypeName},
+                name = #{item.name},
+                count = #{item.count},
+                config_time = #{item.configTime},
+                expire_time = #{item.expireTime},
+                images = #{item.images},
+                location = #{item.location},
+                enable = #{item.enable},
+                update_date = #{item.updateDate}
+            </set>
+            where defense_type = #{item.defenseType}
+        </foreach>
+    </update>
+</mapper>

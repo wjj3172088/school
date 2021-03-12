@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScClassMapper">
+
+    <resultMap type="ScClass" id="ScClassResult">
+        <result property="classId" column="class_id"/>
+        <result property="grade" column="grade"/>
+        <result property="classNum" column="class_num"/>
+        <result property="stuCount" column="stu_count"/>
+        <result property="orgId" column="org_id"/>
+        <result property="teacCode" column="teac_code"/>
+        <result property="teacName" column="teac_name"/>
+        <result property="mobile" column="mobile"/>
+        <result property="classCode" column="class_code"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="remark" column="remark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="stage" column="stage"/>
+    </resultMap>
+
+    <select id="selectListByPage" parameterType="ScClass" resultMap="ScClassResult">
+        select
+        t.class_id,
+        t.grade,
+        t5.item_name as gradeName,
+        t.class_num,
+        (select count(1) from t_sc_student ts where ts.class_id = t.class_id
+        and ts.state_mark = 'Y') as stu_count,
+        t.org_id,
+        t4.org_name,
+        t.state_mark,
+        t.modify_date,
+        t3.teac_id,
+        t3.teac_name,
+        t3.mobile,
+        t.teac_code,
+        t.class_code
+        from t_sc_class t
+        left join t_sc_teac_class t2 on t.class_id = t2.class_id and t2.direct = 'Y'
+        left join t_sc_teacher t3 on t2.teac_id = t3.teac_id
+        left join t_sys_org t4 on t.org_id = t4.org_id
+        left join t_sys_dict_item t5 on t5.dict_code = 'grade' and t5.item_val = t.grade
+        where 1=1
+        and t.state_mark = 'Y'
+        <if test="scClass.grade != null and scClass.grade != ''">
+            and t.grade = #{scClass.grade}
+        </if>
+        <if test="scClass.classNum != null and scClass.classNum != ''">
+            and t.class_num = #{scClass.classNum}
+        </if>
+        <if test="scClass.teachName != null and scClass.teachName != ''">
+            and t3.teac_name like CONCAT('%',#{scClass.teachName},'%' )
+        </if>
+        <if test="scClass.orgId != null and scClass.orgId != ''">
+            and t.org_id = #{scClass.orgId}
+        </if>
+        order by t.org_id asc ,
+        t.grade asc,
+        t.class_num asc
+    </select>
+
+    <select id="findAllByExport" parameterType="java.util.HashMap" resultType="com.qh.basic.domain.vo.ClassExportVo">
+        select
+        t4.item_name as gradeName,
+        t.class_num,
+        (select count(1) from t_sc_student ts where ts.class_id = t.class_id
+        and ts.state_mark = 'Y') as stu_count,
+        t3.teac_name teachName,
+        t3.mobile teachMobile
+        from t_sc_class t
+        left join t_sc_teac_class t2 on t.class_id = t2.class_id and t2.direct = 'Y'
+        left join t_sc_teacher t3 on t2.teac_id = t3.teac_id
+        left join t_sys_dict_item t4 on t4.dict_code = 'grade' and t4.item_val = t.grade
+        where 1=1
+        and t.state_mark != 'D'
+        <if test="grade != null and grade != ''">
+            and t.grade = #{grade}
+        </if>
+        <if test="classNum != null and classNum != ''">
+            and t.class_num = #{classNum}
+        </if>
+        <if test="teachName != null and teachName != ''">
+            and t3.teac_name like CONCAT('%',#{teachName},'%' )
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and t.org_id = #{orgId}
+        </if>
+        order by t.org_id asc ,
+        t.grade asc,
+        t.class_num asc
+    </select>
+
+    <select id="findAllByOrgId" parameterType="String" resultMap="ScClassResult">
+        select
+        t.class_id,
+        t4.item_name as gradeName,
+        t.class_num,
+        (select count(1) from t_sc_student ts where ts.class_id = t.class_id
+        and ts.state_mark = 'Y') as stu_count,
+        t3.teac_name,
+        t3.mobile teachMobile
+        from t_sc_class t
+        left join t_sc_teac_class t2 on t.class_id = t2.class_id and t2.direct = 'Y'
+        left join t_sc_teacher t3 on t2.teac_id = t3.teac_id
+        left join t_sys_dict_item t4 on t4.dict_code = 'grade' and t4.item_val = t.grade
+        left join t_sys_dict_item t5 on t5.dict_code = 'classNum' and t5.item_name = t.class_num
+        where 1=1
+        and t.state_mark = 'Y'
+        <if test="orgId != null and orgId != ''">
+            and t.org_id = #{orgId}
+        </if>
+        order by t.org_id asc ,
+        t4.sort, t5.sort asc
+    </select>
+
+    <select id="queryExistClass" parameterType="map" resultMap="ScClassResult">
+        select * from t_sc_class
+        where class_num = #{classNum}
+        <if test="grade != null and grade != ''">
+            and grade = #{grade}
+        </if>
+        and org_id = #{orgId} and state_mark = 'Y' limit 1
+    </select>
+
+    <select id="selectClassByGrade" parameterType="map" resultMap="ScClassResult">
+        select * from t_sc_class
+        where org_id = #{orgId} and state_mark = 'Y' and grade in
+        <foreach item="item" index="index" collection="gradeList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="modify" parameterType="com.qh.basic.domain.ScClass">
+        update t_sc_class
+        <set>
+            <if test="grade != null and grade != ''">grade = #{grade},</if>
+            <if test="classNum != null and classNum != ''">class_num = #{classNum},</if>
+            <if test="teacCode != null and teacCode != ''">teac_code = #{teacCode},</if>
+            <if test="classCode != null and classCode != ''">class_code = #{classCode},</if>
+            modify_date = sysdate()
+        </set>
+        where class_id = #{classId}
+    </update>
+
+    <!-- 根据id批量删除 -->
+    <update id="batchDelClass">
+        update t_sc_class set state_mark = 'D' where class_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 根据id查询 -->
+    <select id="queryByClassId" parameterType="String" resultType="java.util.HashMap">
+	    select
+        t.class_id classId,
+        t.grade,
+        t.class_num classNum,
+        (select count(1) from t_sc_student ts where ts.class_id = t.class_id
+        and ts.state_mark = 'Y') as stuCount,
+        t.org_id orgId,
+        t4.org_name orgName,
+        t.state_mark stateMark,
+        t.modify_date modifyDate,
+        t3.teac_id teacId,
+        t3.teac_name teacName,
+        t3.mobile,
+        t.teac_code teacCode,
+        t.class_code classCode
+        from t_sc_class t
+        left join t_sc_teac_class t2 on t.class_id = t2.class_id and t2.direct = 'Y'
+        left join t_sc_teacher t3 on t2.teac_id = t3.teac_id
+        left join t_sys_org t4 on t.org_id = t4.org_id
+		where t.class_id = #{classId} limit 1
+	</select>
+
+    <select id="queryBasicByClassId" parameterType="String" resultMap="ScClassResult">
+	    select *
+        from t_sc_class
+		where class_id = #{classId} limit 1
+	</select>
+
+    <select id="countByGrade" resultType="Integer">
+        select count(*)
+        from t_sc_class
+        where state_mark != 'D' and org_id = #{orgId} and grade in
+        <foreach item="item" index="index" collection="gradeList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <!-- 升学 -->
+    <update id="upgrade">
+        update t_sc_class set grade = grade+1,modify_date = sysdate()
+        where state_mark != 'D' and org_id = #{orgId} and grade not in
+        <foreach item="item" index="index" collection="gradeList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 毕业 -->
+    <update id="graduate">
+        update t_sc_class set state_mark = 'D',modify_date = sysdate()
+        where state_mark != 'D' and org_id = #{orgId} and grade in
+        <foreach item="item" index="index" collection="gradeList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 根据班级id查询可用的班级信息 -->
+    <select id="queryEnableExtentByClassId" parameterType="String" resultMap="ScClassResult">
+	  select
+	  class_id,grade,class_num,stu_count,org_id,teac_code,class_code,t.state_mark,t.remark,stage,
+	  concat(t2.item_name,t.class_num) as class_name
+	  from t_sc_class t
+      left join t_sys_dict_item t2 ON t2.dict_code = 'grade' AND t2.item_val = t.grade
+	  where t.class_id = #{classId} and t.state_mark = 'Y' limit 1
+	</select>
+</mapper>

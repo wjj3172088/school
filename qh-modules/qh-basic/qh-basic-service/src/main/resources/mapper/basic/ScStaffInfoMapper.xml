@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScStaffInfoMapper">
+
+    <resultMap type="ScStaffInfo" id="ScStaffInfoResult">
+        <result property="staffId" column="staff_id"/>
+        <result property="orgId" column="org_id"/>
+        <result property="jobTitle" column="job_title"/>
+        <result property="stateMark" column="state_mark"/>
+        <result property="remark" column="remark"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="faceImage" column="face_image"/>
+        <result property="healthCertificate" column="health_certificate"/>
+        <result property="accId" column="acc_id"/>
+        <result property="jobNumber" column="job_number"/>
+    </resultMap>
+
+    <resultMap type="PushMoveStaff" id="PushMoveStaffResult">
+        <result property="alias" column="alias"/>
+        <result property="accNum" column="acc_num"/>
+        <result property="accId" column="acc_id"/>
+        <result property="gtCid" column="gt_cid"/>
+        <result property="staffName" column="staff_name"/>
+        <result property="staffId" column="staff_id"/>
+    </resultMap>
+
+    <select id="selectListByPage" parameterType="map" resultType="java.util.HashMap">
+        select
+        t.staff_id staffId,
+        t.acc_id accId,
+        t.face_image faceImage,
+        t.health_certificate healthCertificate,
+        t2.acc_num mobile,
+        t3.id_card idCard,
+        t2.true_name trueName,
+        t3.integral,
+        t3.motor_num motorNum,
+        t3.not_motor_num notMotorNum,
+        t3.motor_tag_num motorTagNum,
+        t3.not_motor_tag_num notMotorTagNum,
+        t.state_mark stateMark,
+        t.job_title jobTitle,
+        t.org_id orgId,
+        t.create_date createDate,
+        t.modify_date modifyDate,
+        t.job_number jobNumber
+        from t_sc_staff_info t
+        left join t_sc_move_acc t2 on t.acc_id=t2.acc_id
+        left join t_sc_move_acc_other t3 on t.acc_id=t3.acc_id
+        where t.state_mark != 'D'
+        <if test="map.trueName != null and map.trueName != ''">
+            and t2.true_name like CONCAT('%',#{map.trueName},'%' )
+        </if>
+        <if test="map.idCard != null and map.idCard != ''">
+            and t3.id_card like CONCAT('%',#{map.idCard},'%' )
+        </if>
+        <if test="map.orgId != null and map.orgId != ''">
+            and t.org_id = #{map.orgId}
+        </if>
+        <if test="map.mobile != null and map.mobile != ''">
+            and t2.acc_num like CONCAT('%',#{map.mobile},'%' )
+        </if>
+        order by t.create_date desc
+    </select>
+
+    <!-- 根据手机号查询 -->
+    <select id="countByMobile" parameterType="String" resultType="Long">
+		select count(*) from t_sc_staff_info t
+        left join t_sc_move_acc t2 on t.acc_id=t2.acc_id
+		where t2.acc_num =#{mobile} and t.state_mark != 'D'
+	</select>
+
+    <!-- 根据手机号查询 -->
+    <select id="countByMobileNotIdCard" resultType="Long">
+		select count(*) from t_sc_staff_info t
+        left join t_sc_move_acc t2 on t.acc_id=t2.acc_id
+        left join t_sc_move_acc_other t3 on t.acc_id=t3.acc_id
+		where t2.acc_num =#{mobile} and t3.id_card!= #{idCard}  and t.state_mark != 'D'
+	</select>
+
+    <!-- 根据职工id的笔数 -->
+    <select id="selectByMobile" parameterType="String" resultMap="ScStaffInfoResult">
+		select * from t_sc_staff_info t
+        left join t_sc_move_acc t2 on t.acc_id=t2.acc_id
+		where t2.acc_num = #{mobile} and t.state_mark != 'D'
+	</select>
+
+    <!-- 根据移动账户id的笔数 -->
+    <select id="selectByAccId" parameterType="String" resultMap="ScStaffInfoResult">
+		select * from t_sc_staff_info
+		where acc_id = #{accId} and state_mark != 'D'
+	</select>
+
+    <!-- 修改 -->
+    <update id="modify" parameterType="com.qh.basic.api.domain.ScStaffInfo">
+        update t_sc_staff_info
+        <set>
+            <if test="jobTitle != null and jobTitle != ''">job_title = #{jobTitle},</if>
+            <if test="faceImage != null">face_image = #{faceImage},</if>
+            <if test="healthCertificate != null">health_certificate = #{healthCertificate},</if>
+            modify_date = sysdate()
+        </set>
+        where acc_id = #{accId}
+    </update>
+
+    <!-- 删除操作 -->
+    <update id="batchDelByAccId">
+        update t_sc_staff_info set state_mark = 'D' where acc_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 根据身份证号查询 -->
+    <select id="selectByIdCard" parameterType="String" resultMap="ScStaffInfoResult">
+		select * from t_sc_staff_info t
+        left join t_sc_move_acc_other t3 on t.acc_id=t3.acc_id
+		where t3.id_card = #{idCard} and t.state_mark != 'D'
+	</select>
+
+    <select id="queryByStaffId" parameterType="String" resultType="java.util.HashMap">
+        select
+        t.staff_id staffId,
+        t.acc_id accId,
+        t.face_image faceImage,
+        t.health_certificate healthCertificate,
+        t2.acc_num mobile,
+        t3.id_card idCard,
+        t2.true_name trueName,
+        t3.integral,
+        t3.motor_num motorNum,
+        t3.not_motor_num notMotorNum,
+        t3.motor_tag_num motorTagNum,
+        t3.not_motor_tag_num notMotorTagNum,
+        t.state_mark stateMark,
+        t.job_title jobTitle,
+        t.org_id orgId,
+        t.create_date createDate,
+        t.modify_date modifyDate,
+        t.job_number jobNumber
+        from t_sc_staff_info t
+        left join t_sc_move_acc t2 on t.acc_id=t2.acc_id
+        left join t_sc_move_acc_other t3 on t.acc_id=t3.acc_id
+        where t.state_mark != 'D'
+        <if test="staffId != null and staffId != ''">
+            and t.staff_id = #{staffId}
+        </if>
+        order by t.create_date desc
+    </select>
+
+    <!-- 通讯录 -->
+    <select id="selectList" parameterType="map" resultType="java.util.HashMap">
+        select t.staff_id id,
+        t2.true_name name,
+        t2.true_name itemName,
+        t.acc_id accId,
+        CONCAT(SUBSTR(t2.acc_num,1,3),"****",SUBSTR(t2.acc_num,8)) mobile,
+        t.job_number jobNumber,
+        t2.acc_num tel
+        from t_sc_staff_info t
+        left join t_sc_move_acc t2 on t.acc_id=t2.acc_id
+        where 1=1
+        <if test='map.markState =="Y"'>
+            and t.state_mark = 'Y' and t2.state_mark='Y'
+        </if>
+        <if test='map.markState =="ALL"' >
+            and t.state_mark != 'D'
+        </if>
+        <if test="map.orgId != null and map.orgId != ''">
+            and t.org_id = #{map.orgId}
+        </if>
+        <if test="map.type != null and map.type != ''">
+            and t.job_title = #{map.type}
+        </if>
+        <if test="map.paraValue != null and map.paraValue != ''">
+            and (t2.true_name like CONCAT('%',#{map.paraValue},'%' ) or t2.acc_num =#{map.paraValue})
+        </if>
+        order by t.create_date desc
+    </select>
+
+    <!-- 需要推送的教职工 -->
+    <select id="findMovePushStaff" resultMap="PushMoveStaffResult">
+        select t.acc_id,t.acc_num,t.alias,t.gt_cid,t.true_name,s.staff_id from
+        (select acc_id,acc_num,alias,gt_cid,org_id,true_name from t_sc_move_acc where org_id=#{orgId} and acc_type='S'
+        and state_mark='Y') t
+        join t_sc_staff_info s on s.acc_id=t.acc_id
+        where s.org_id =#{orgId} and s.state_mark='Y'
+        <if test="staffId != null and staffId != ''">
+            and s.staff_id in (${staffId})
+        </if>
+        <if test="jobTitle != null and jobTitle != ''">
+            and s.job_title in (${jobTitle})
+        </if>
+    </select>
+
+
+    <!-- 根据职工姓名和学校查询 -->
+    <select id="selectByStaffName"  resultMap="ScStaffInfoResult">
+        select * ,
+        t2.true_name staffName
+        from t_sc_staff_info t
+        left join t_sc_move_acc t2 on t.acc_id=t2.acc_id
+        where  t.state_mark != 'D'
+        <if test="staffName != null and staffName != ''">
+            and t2.true_name = #{staffName}
+        </if>
+        <if test="orgId != null and orgId != ''">
+            and t.org_id = #{orgId}
+        </if>
+        <if test="jobNumber != null and jobNumber != ''">
+            and t.job_number = #{jobNumber}
+        </if>
+        LIMIT 1
+    </select>
+
+    <!-- 根据学校查询职工最大工号 -->
+    <select id="selectMaxJobNumberByOrgId" parameterType="java.lang.String"  resultType="long">
+		select IFNULL(max(job_number),20000)+1 max_job_number from t_sc_staff_info
+		where org_id = #{orgId} -- and state_mark != 'D'
+	</select>
+
+    <!-- 同步职工健康码状态 -->
+    <update id="syncStaffHealthState" >
+        update t_sc_staff_info set health_state = #{healthState},health_date = now()
+        where staff_id = #{staffId}
+    </update>
+
+</mapper>

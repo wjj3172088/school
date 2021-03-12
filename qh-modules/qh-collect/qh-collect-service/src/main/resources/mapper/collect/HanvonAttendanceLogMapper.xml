@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.collect.mapper.HanvonAttendanceLogMapper">
+    
+    <resultMap type="HanvonAttendanceLog" id="HanvonAttendanceLogResult">
+        <result property="logId"    column="log_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="recorder"    column="recorder"    />
+        <result property="recorderType"    column="recorder_type"    />
+        <result property="peopleNumber"    column="people_number"    />
+        <result property="peopleName"    column="people_name"    />
+        <result property="attendanceType"    column="attendance_type"    />
+        <result property="attendanceDate"    column="attendance_date"    />
+        <result property="checkTime"    column="check_time"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="deviceId"    column="device_id"    />
+    </resultMap>
+
+
+</mapper>

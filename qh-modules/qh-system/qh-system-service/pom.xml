@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.qh</groupId>
+        <artifactId>qh-system</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+	
+    <artifactId>qh-system-service</artifactId>
+
+    <description>
+        qh-system-service系统服务
+    </description>
+	
+    <dependencies>
+    	
+    	<!-- SpringCloud Ailibaba Nacos -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        
+        <!-- SpringCloud Ailibaba Nacos Config -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        
+    	<!-- SpringCloud Ailibaba Sentinel -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+        </dependency>
+        
+    	<!-- SpringBoot Web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+		
+        <!-- Swagger -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger.fox.version}</version>
+        </dependency>
+		
+        <!-- Mysql Connector -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        
+        <!-- qh Common Security -->
+        <dependency>
+            <groupId>com.qh</groupId>
+            <artifactId>qh-common-security</artifactId>
+        </dependency>
+        
+        <!-- qh Common Datascope -->
+        <dependency>
+            <groupId>com.qh</groupId>
+            <artifactId>qh-common-datascope</artifactId>
+        </dependency>
+        
+        <!-- qh Common Log -->
+        <dependency>
+            <groupId>com.qh</groupId>
+            <artifactId>qh-common-log</artifactId>
+        </dependency>
+        
+        <!-- qh Common Swagger -->
+        <dependency>
+            <groupId>com.qh</groupId>
+            <artifactId>qh-common-swagger</artifactId>
+        </dependency>
+        
+        <!-- qh Common Redis-->
+        <dependency>
+            <groupId>com.qh</groupId>
+            <artifactId>qh-common-redis</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.0.5.RELEASE</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+   
+</project>

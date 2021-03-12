@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScExaminationMainMapper">
+    
+    <resultMap type="ScExaminationMain" id="ScExaminationMainResult">
+        <result property="examinationId"    column="examination_id"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="subjectId"    column="subject_id"    />
+        <result property="highest"    column="highest"    />
+        <result property="examinationDate"    column="examination_date"    />
+        <result property="examinationName"    column="examination_name"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="average"    column="average"    />
+        <result property="publisherId"    column="publisher_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="className"    column="class_name"    />
+        <result property="subjectName"    column="subject_name"    />
+    </resultMap>
+
+
+    <select id="selectListByPage" parameterType="ScExaminationMain" resultMap="ScExaminationMainResult">
+        select t.examination_id,t.org_id,t.class_id,t.subject_id,t.highest,t.examination_date,t.examination_name,t.create_date,t.modify_date,t.average,t.publisher_id
+        ,concat(t3.item_name,t2.class_num) as class_name
+        ,t6.org_name,t4.subject_name
+        FROM t_sc_examination_main t
+        LEFT JOIN t_sc_class t2 ON t.class_id = t2.class_id
+        LEFT JOIN t_sys_dict_item t3 ON t3.dict_code = 'grade' AND t3.item_val = t2.grade
+        LEFT JOIN t_sc_subject t4 ON t.subject_id = t4.subject_id
+        left join t_sys_org t6 on t.org_id = t6.org_id
+        where 1=1
+        <if test="scExaminationMain.orgId != null and scExaminationMain.orgId != ''">
+            and t.org_id in (#{scExaminationMain.orgId})
+        </if>
+        <if test="scExaminationMain.classId != null and scExaminationMain.classId != ''">
+            and t.class_id = #{scExaminationMain.classId}
+        </if>
+        <if test="scExaminationMain.subjectId != null and scExaminationMain.subjectId != ''">
+            and t.subject_id = #{scExaminationMain.subjectId}
+        </if>
+        <if test="scExaminationMain.subjectName != null and scExaminationMain.subjectName != ''">
+            and t4.subject_name = #{scExaminationMain.subjectName}
+        </if>
+        <if test="scExaminationMain.beginTime != null and scExaminationMain.beginTime != ''
+            and scExaminationMain.endTime != null and scExaminationMain.endTime != ''">
+            and t.examination_date BETWEEN #{scExaminationMain.beginTime}  and #{scExaminationMain.endTime}
+        </if>
+        order by t.create_date desc
+    </select>
+
+</mapper>

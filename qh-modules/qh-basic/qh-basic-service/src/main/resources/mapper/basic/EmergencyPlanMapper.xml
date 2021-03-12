@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.EmergencyPlanMapper">
+
+    <resultMap type="EmergencyPlan" id="EmergencyPlanResult">
+        <result property="planId" column="plan_id"/>
+        <result property="name" column="name"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="type" column="type"/>
+        <result property="level" column="level"/>
+        <result property="planTime" column="plan_time"/>
+        <result property="publisherName" column="publisher_name"/>
+        <result property="content" column="content"/>
+        <result property="fileData" column="file_data"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateDate" column="update_date"/>
+    </resultMap>
+
+    <!-- 根据planId修改 -->
+    <update id="modifyByPlanId" parameterType="com.qh.basic.domain.EmergencyPlan">
+        update t_sc_emergency_plan
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="planTime != null">plan_time = #{planTime},</if>
+            <if test="publisherName != null and publisherName != ''">publisher_name = #{publisherName},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="fileData != null and fileData != ''">file_data = #{fileData},</if>
+            <if test="updateDate != null">update_date = #{updateDate},</if>
+        </set>
+        where plan_id = #{planId}
+    </update>
+</mapper>

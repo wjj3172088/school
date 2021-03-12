@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.AttendanceStatisticsMapper">
+
+	<resultMap type="com.qh.basic.model.response.AttendanceClassStatisticsInfoResp" id="attendanceReturn">
+		<result column="statis_all" jdbcType="INTEGER"
+				property="statisAll" />
+		<result column="inside_count" jdbcType="INTEGER"
+				property="inside" />
+		<result column="outside_count" jdbcType="INTEGER"
+				property="outside" />
+		<result column="leave_count" jdbcType="INTEGER"
+				property="askLeave" />
+
+		<result column="stu_id" jdbcType="VARCHAR"
+				property="stuId" />
+		<result column="stu_name" jdbcType="VARCHAR"
+				property="stuName" />
+		<result column="guardian_mobile" jdbcType="VARCHAR"
+				property="guardianMobile" />
+	</resultMap>
+
+
+	<resultMap type="com.qh.basic.model.response.AttendanceStaffInfoStatisticsResp" id="staffInfoReturn">
+		<result column="acc_id" jdbcType="VARCHAR"
+				property="accId" />
+		<result column="name" jdbcType="VARCHAR"
+				property="name" />
+		<result column="motor_num" jdbcType="VARCHAR"
+				property="motorNum" />
+		<result column="jobTitle" jdbcType="VARCHAR"
+				property="jobTitle" />
+		<result column="into_time" jdbcType="INTEGER"
+				property="intoTime" />
+		<result column="outto_time" jdbcType="INTEGER"
+				property="outTime" />
+		<result column="attendance_date" jdbcType="VARCHAR"
+				property="attendanceDate" />
+		<result column="job_number" jdbcType="VARCHAR"
+				property="jobNumber" />
+	</resultMap>
+
+	<!-- 教职工考勤统计总览 -->
+	<select id="selectStaffInfoStatistics"  resultMap="attendanceReturn">
+		select sum(statis_all) as statis_all,sum(inside) as inside_count from (
+		select count(t.acc_id) as statis_all,sum(if(att.into_time>0,1,0)) as inside
+		from t_sc_teacher t
+		join t_sc_move_acc acc on acc.acc_id=t.acc_id and acc.state_mark!='D'
+		left join t_sc_checkin_attendance att on  att.recorder=t.acc_id and att.recorder_type=2 and att.state_mark=1
+		<if test="date != null and date != ''">
+			and att.attendance_date=#{date}
+		</if>
+		where t.state_mark='Y'
+		<if test="orgId != null and orgId != ''">
+			and t.org_id=#{orgId}
+		</if>
+		UNION
+		select count(s.acc_id) as statis_all,sum(if(att.into_time>0,1,0)) as inside
+		from t_sc_staff_info s
+		join t_sc_move_acc acc on acc.acc_id=s.acc_id and acc.state_mark!='D'
+		left join t_sc_checkin_attendance att on att.recorder=s.acc_id and att.recorder_type=2 and att.state_mark=1
+		<if test="date != null and date != ''">
+			and att.attendance_date=#{date}
+		</if>
+		where s.state_mark='Y'
+		<if test="orgId != null and orgId != ''">
+			and s.org_id=#{orgId}
+		</if>
+		) t
+	</select>
+
+	<!-- 按照学校获取某天请假人数 -->
+	<select id="getStudentLeaveCount" resultType="java.lang.Long">
+		select count(0) as count from (
+		select count(0) as leaveCount  from t_sc_ask_leave_date_log as l
+		join t_sc_student as s on s.stu_id = l.stu_id
+		where  l.state_mark = 'Y'
+		<if test="date != null and date != ''">
+			and #{date} BETWEEN date_format(l.leave_start,'%Y%m%d') and date_format(l.leave_end,'%Y%m%d')
+		</if>
+		<if test="orgId != null and orgId != ''">
+			and s.org_id = #{orgId}
+		</if>
+		group by s.stu_id
+		) t
+	</select>
+
+
+	<!-- 学生每日考勤统计总览 -->
+	<select id="selectStudentAttendanceStatistics"  resultMap="attendanceReturn">
+		select *,a.statis_all-b.inside_count as outside_count from (
+			-- 获取学校总人数
+			select count(1) as statis_all from t_sc_student s
+			where s.state_mark='Y'
+			<if test="orgId != null and orgId != ''">
+				and s.org_id=#{orgId}
+			</if>
+		) a  left join
+		(
+			-- 获取已到人数
+			select count(0) as inside_count
+			from t_sc_checkin_attendance att
+			where att.attendance_date=#{date}
+			<if test="orgId != null and orgId != ''">
+				and att.org_id=#{orgId}
+			</if>
+			and att.into_time>0 and att.recorder_type=1
+		) b on 1=1 left join
+		(
+			-- 获取请假人数
+			select count(0) as leave_count from (
+			select count(0) as leaveCount  from t_sc_ask_leave_date_log as l
+			join t_sc_student as s on s.stu_id = l.stu_id
+			where  l.state_mark = 'Y'    and #{date} BETWEEN date_format(l.leave_start,'%Y%m%d') and date_format(l.leave_end,'%Y%m%d')
+			<if test="orgId != null and orgId != ''">
+				and s.org_id=#{orgId}
+			</if>
+			group by s.stu_id
+			) t
+		) c  on 1=1
+	</select>
+
+
+	<!-- 学生班级每日考勤统计列表 -->
+	<select id="selectClassAttendanceStatistics"  resultMap="attendanceReturn">
+		select a.*,IFNULL(b.inside_count,0) inside_count,IFNULL(c.leave_count,0) leave_count ,(a.statis_all-IFNULL(b.inside_count,0)) as outside_count
+		from (
+			-- 每个班级总人数,班主任,班级名称
+			select count(1) as statis_all,concat(di.item_name,c.class_num) as gradeClass,t.teac_name as masterTeacher,s.class_id
+			from t_sc_student s
+			join t_sc_class c on c.class_id = s.class_id
+			left join t_sys_dict_item di on di.item_val =c.grade and di.dict_code='grade'
+			left join t_sc_teac_class tc on tc.class_id=s.class_id
+			left join t_sc_teacher t on t.teac_id = tc.teac_id
+			where s.state_mark='Y'  and t.state_mark='Y'  and tc.direct='Y'
+			<if test="orgId != null and orgId != ''">
+				and s.org_id=#{orgId}
+			</if>
+			group by s.class_id
+			order by c.grade,c.class_num
+		) a  left join
+		(
+			-- 按照班级获取学生已到人数
+			select count(0) as inside_count  ,stu.class_id
+			from t_sc_checkin_attendance att
+			left join t_sc_student stu on (att.recorder=stu.stu_id)
+			where att.attendance_date=#{date}
+			<if test="orgId != null and orgId != ''">
+				and att.org_id=#{orgId}
+			</if>
+			and att.into_time>0 and att.recorder_type=1
+			group by stu.class_id
+		) b on a.class_id=b.class_id left join
+		(
+			-- 按照班级获取请假人数
+			select count(0) as leave_count,class_id from (
+			select s.stu_id,s.class_id from t_sc_ask_leave_date_log as l
+			join t_sc_student as s on s.stu_id = l.stu_id
+			where  l.state_mark = 'Y'
+			<if test="orgId != null and orgId != ''">
+				and s.org_id=#{orgId}
+			</if>
+			 and #{date} BETWEEN date_format(l.leave_start,'%Y%m%d') and date_format(l.leave_end,'%Y%m%d')
+			group by s.stu_id
+			) t group by t.class_id
+		) c  on a.class_id=c.class_id
+	</select>
+
+	<!-- 学生明细每日考勤统计列表 已废弃 -->
+	<select id="selectStudentListDetAttendanceStatistics"  resultMap="attendanceReturn">
+		select a.*,IFNULL(b.inside_count,0) as inside_count,IFNULL(c.leave_count,0) as leave_count from (
+			select s.stu_id,s.stu_name,s.guardian_mobile	from t_sc_student s
+			where s.state_mark='Y'
+			<if test="orgId != null and orgId != ''">
+				and s.org_id=#{orgId}
+			</if>
+			<if test="classId != null and classId != ''">
+				and  s.class_id=#{classId}
+			</if>
+		) a  left join
+		(
+			select count(0) as inside_count,att.recorder
+			from t_sc_checkin_attendance att
+			where att.attendance_date=#{date}
+			<if test="orgId != null and orgId != ''">
+				and att.org_id=#{orgId}
+			</if>
+			<if test="classId != null and classId != ''">
+				and  att.class_id=#{classId}
+			</if>
+			and att.into_time>0 and att.recorder_type=1
+			group by att.recorder
+
+		) b on a.stu_id=b.recorder left join
+		(
+			select count(0) as leave_count,s.stu_id  from t_sc_ask_leave_date_log as l
+			join t_sc_student as s on s.stu_id = l.stu_id
+			where  l.state_mark = 'Y'    and #{date} BETWEEN date_format(l.leave_start,'%Y%m%d') and date_format(l.leave_end,'%Y%m%d')
+			<if test="orgId != null and orgId != ''">
+				and s.org_id=#{orgId}
+			</if>
+			<if test="classId != null and classId != ''">
+				and  s.class_id=#{classId}
+			</if>
+			group by s.stu_id
+		) c  on a.stu_id=c.stu_id
+	</select>
+
+	<!-- 学生明细每日考勤统计列表 -->
+	<select id="selectStudentListDetAttendanceStatisticsNew"  resultMap="attendanceReturn">
+		select main.date as attendance_date,stu.stu_id,stu.stu_name, IFNULL(att.into_time,0) inside_count,IFNULL(att.outto_time,0) outside_count,att.tohome_time,att.state_mark
+		,IF((select count(1) from t_sc_ask_leave_date_log l where l.stu_id = stu.stu_id and l.state_mark='Y'
+		and DATE_FORMAT(l.leave_start,'%Y%m%d')<![CDATA[<=main.date  and DATE_FORMAT(l.leave_end,'%Y%m%d')>=main.date  ]]>)>0,1,0)  as leave_count
+		from t_sc_attendance_date_main main
+		left join t_sc_attendance_date_sub sub on sub.date_id=main.date_id and sub.org_id=#{orgId}
+		left join t_sc_student stu on stu.class_id=#{classId}
+		left join t_sc_checkin_attendance att on stu.stu_id= att.recorder and att.attendance_date = main.date
+		where <![CDATA[ main.date >=#{date} and main.date <#{dateEnd}  ]]> and COALESCE(sub.state_mark,main.state_mark)=1  and stu.state_mark='Y'
+		order by main.date desc, att.into_time asc
+	</select>
+
+	<!-- 教职工明细当日考勤统计列表 -->
+	<select id="selectStaffInfoDetAttendanceStatistics"  resultMap="staffInfoReturn">
+		SELECT  acc.acc_id,acc.true_name as name,acco.motor_num,it.item_name as jobTitle,staff.job_number
+		,IFNULL(att.into_time,0) as into_time,IFNULL(att.outto_time,0) as outto_time,#{date} as attendance_date
+		from t_sc_staff_info staff
+		join t_sc_move_acc acc on acc.acc_id=staff.acc_id and acc.state_mark!='D'
+		left join
+		t_sc_checkin_attendance att on att.recorder=acc.acc_id and att.attendance_date=#{date}
+		<if test="orgId != null and orgId != ''">
+			and att.org_id=#{orgId}
+		</if>
+		and att.recorder_type=2
+		left join t_sys_dict_item it on it.dict_code='staffJobTitle' and it.item_val = staff.job_title
+		left join t_sc_move_acc_other acco on acco.acc_id=acc.acc_id
+		where staff.state_mark='Y'
+		<if test="orgId != null and orgId != ''">
+			and staff.org_id=#{orgId}
+		</if>
+		union
+		SELECT  acc.acc_id,t.teac_name as name,acco.motor_num,it.item_name as jobTitle,t.job_number
+		,IFNULL(att.into_time,0) as into_time,IFNULL(att.outto_time,0)  as outto_time,#{date} as attendance_date
+		from t_sc_teacher t
+		join t_sc_move_acc acc on acc.acc_id=t.acc_id and acc.state_mark!='D'
+		left join
+		t_sc_checkin_attendance att on att.recorder=acc.acc_id
+		and att.attendance_date=#{date}
+		<if test="orgId != null and orgId != ''">
+			and att.org_id=#{orgId}
+		</if>
+		 and att.recorder_type=2
+		left join t_sys_dict_item it on it.dict_code='jobTitle' and it.item_val = t.job_title
+		left join t_sc_move_acc_other acco on acco.acc_id=acc.acc_id
+		where t.state_mark='Y'
+		<if test="orgId != null and orgId != ''">
+			and t.org_id=#{orgId}
+		</if>
+	</select>
+
+
+
+
+	<!-- 教职工明细按职工明细考勤统计列表 -->
+	<select id="selectStaffInfoByNameStatistics"  resultMap="staffInfoReturn">
+		SELECT t1.*,t2.*,t3.recorder,IFNULL(t3.into_time,0) into_time,IFNULL(t3.outto_time,0) outto_time,t1.days attendance_date FROM
+		(
+		SELECT
+		@date := DATE_ADD( @date, INTERVAL + 1 DAY ) days
+		FROM
+		( SELECT @date := DATE_ADD( #{beginTime}, INTERVAL - 1 DAY ) FROM t_sc_teacher ) time
+		WHERE
+		to_days( @date ) <![CDATA[
+             < to_days(#{endTime})
+          ]]>
+		) t1
+
+		LEFT JOIN
+		(
+		SELECT  acc.acc_id,acc.true_name as name,acco.motor_num,it.item_name as jobTitle,t.job_number
+		from ${param1} t
+		join t_sc_move_acc acc on acc.acc_id=t.acc_id and acc.state_mark!='D'
+		left join t_sys_dict_item it on it.dict_code='jobTitle' and it.item_val = t.job_title
+		left join t_sc_move_acc_other acco on acco.acc_id=acc.acc_id
+		where t.state_mark!='D' and t.org_id=#{orgId} and t.acc_id=#{accId}
+		) t2
+		ON 1=1
+		LEFT JOIN
+		(
+		select
+		DATE(att.attendance_date) days,att.recorder,att.into_time,att.outto_time from t_sc_checkin_attendance att
+		where  att.recorder_type=2  and attendance_date>=#{beginTime} and attendance_date
+		<![CDATA[
+            <= #{endTime}
+          ]]>  and att.org_id=#{orgId}
+		and att.recorder=#{accId}
+		) t3
+		ON t3.days = t1.days and t2.acc_id=t3.recorder
+		GROUP BY t1.days
+	</select>
+
+</mapper>

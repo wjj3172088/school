@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScEpidemicDailyMapper">
+    
+    <resultMap type="ScEpidemicDaily" id="ScEpidemicDailyResult">
+        <result property="dailyId"    column="daily_id"    />
+        <result property="publisherId"    column="publisher_id"    />
+        <result property="publisherName"    column="publisher_name"    />
+        <result property="createDate"    column="create_date"    />
+        <result property="modifyDate"    column="modify_date"    />
+        <result property="picurl"    column="picurl"    />
+        <result property="fileurl"    column="fileurl"    />
+        <result property="stateMark"    column="state_mark"    />
+        <result property="orgId"    column="org_id"    />
+        <result property="orgName"    column="org_name"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <insert id="batchTodayAddByOrg"  >
+        insert into t_sc_epidemic_daily(daily_id,publisher_name, create_date,modify_date
+        ,state_mark,org_id,org_name)
+        select replace(UUID(),"-",""),"system",unix_timestamp(now()), unix_timestamp(now()),1,
+        org_id,org_name from t_sys_org where state_mark="Y" LIMIT 1
+    </insert>
+
+</mapper>

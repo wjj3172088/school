@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qh.basic.mapper.ScGraduateDetailMapper">
+    <resultMap type="ScGraduateDetail" id="ScGraduateDetailResult">
+        <result property="id" column="id"/>
+        <result property="stuId" column="stu_id"/>
+        <result property="stuName" column="stu_name"/>
+        <result property="idCard" column="id_card"/>
+        <result property="stuNum" column="stu_num"/>
+        <result property="tagNum" column="tag_num"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="classId" column="class_id"/>
+        <result property="className" column="class_name"/>
+        <result property="guardianName" column="guardian_name"/>
+        <result property="guardianRelation" column="guardian_relation"/>
+        <result property="guardianRelationName" column="guardian_relation_name"/>
+        <result property="guardianMobile" column="guardian_mobile"/>
+        <result property="teacherId" column="teacher_id"/>
+        <result property="teacherName" column="teacher_name"/>
+        <result property="teacherMobile" column="teacher_mobile"/>
+        <result property="year" column="year"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+
+    <!-- 批量新增 -->
+    <insert id="batchInsert" parameterType="ScGraduateDetail">
+        insert into t_sc_graduate_detail(stu_id,stu_name,id_card,stu_num,tag_num,org_id,org_name,
+        class_id,class_name,guardian_name,guardian_relation,guardian_relation_name,guardian_mobile,teacher_id,teacher_name,teacher_mobile,year,create_date,modify_date)
+        values
+        <foreach collection='list' item='item' index='index' separator=','>
+            (#{item.stuId}, #{item.stuName}, #{item.idCard}, #{item.stuNum},#{item.tagNum},#{item.orgId},#{item.orgName},
+            #{item.classId}, #{item.className}, #{item.guardianName}, #{item.guardianRelation}, #{item.guardianRelationName},#{item.guardianMobile},
+            #{item.teacherId},#{item.teacherName},#{item.teacherMobile},#{item.year},#{item.createDate},#{item.modifyDate})
+        </foreach>
+    </insert>
+</mapper>
