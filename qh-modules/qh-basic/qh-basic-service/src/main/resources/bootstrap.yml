@@ -14,7 +14,7 @@ spring:
     nacos:
       discovery:
         # 服务注册地址
-        server-addr: nacos.qinghai.com:59004
+        server-addr: 127.0.0.1:59004
       config:
         # 配置中心地址
         server-addr: 127.0.0.1:59004
