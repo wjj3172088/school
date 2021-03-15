@@ -22,6 +22,6 @@ public class BasicApplication
     public static void main(String[] args)
     {
         SpringApplication.run(BasicApplication.class, args);
-        System.out.println("(♥◠‿◠)ﾉﾞ  基础模块启动成功   ლ(´ڡ`ლ)ﾞ ");
+        System.out.println("(♥◠‿◠)ﾉﾞ  基础模块启动成功    ლ(´ڡ`ლ)ﾞ ");
     }
 }
